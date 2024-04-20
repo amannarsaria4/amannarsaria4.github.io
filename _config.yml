@@ -21,7 +21,7 @@ repository               : "amannarsaria4/amannarsaria4.github.io"
 #               Additional customization can be done by editing /_includes/author-profile.html
 author:
   # Biographic information
-  avatar           : "aman_picture.png"
+  avatar           : "aman_pic.png"
   name             : "Aman Narsaria"
   pronouns         : # example: "she/her"  
   bio              : "Financial Engineering"
