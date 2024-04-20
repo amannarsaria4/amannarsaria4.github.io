@@ -1,19 +1,23 @@
 ---
 permalink: /
-title: "Hello World, I'm Aman"
+title: "Hey there, I'm Aman!"
 author_profile: true
 redirect_from: 
   - /about/
   - /about.html
 ---
 
-I am currently studying financial engineering at UC Berkeley. I am interested in the field of quantitative research and to make sense of complex data simple simple and intuitive models.
+I am currently pursuing my Masters in financial engineering at UC Berkeley. I am interested in the field of quantitative research. 
+<!-- I like to build simple and intuitive models that can make sense of complex data.  -->
 
-Before deciding to pursue my masters in this field, I worked at Dolat Capital(high-frequency trading) where I made systematic trading strategies for futures trading in the Indian stock market. Prior to this, I worked at a JP Morgan Chase as a Quantitative Reseacher intern for the equity derivatives group. I worked specifically on using numerical methods to price exotic options contracts.
+Currently I am working on an Open Range Breakout strategy for FTSE futures, and exploring how can we add more fundamential indicators to improve profitability. 
 
-I graduated with M.Sc. in Economics and BE in Computer Science from BITS Pilani in 2023. 
+Before deciding to pursue further studies in this field, I worked at Dolat Capital, where I developed systematic trading strategies for high-frequency futures trading in the Indian stock market. I also worked on an algorithm to optimize price quotes to minimize potential inventory risks.
 
-When I get too overwhelemed with my work, I usually run( literally !). I love to go on long distance runs to clear my mind. I also like to cook when I get time. 
+Prior to this, I was at JP Morgan Chase, where I worked with the Equity derivatives group(EDG) as a Quantitative Reseacher intern, focusing on pricing exotic options using numerical methods. This experience solidified my understanding of derivative pricing. 
 
+I went to BITS Pilani for my undergrad and completed a dual major in M.Sc. Economics and B.E. Computer Science.
 
-Thanks
+Outside of work, I enjoy all kinds playing all kinds of sports. I usually challenge myself and push my limits by going on long distance runs (if all goes well, I plan to run the NYC marathon this year). I also like to cook new things whenever I get time. 
+
+If you interested in knowing more about any of my projects or my current interests, feel free to drop an email. 

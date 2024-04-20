@@ -21,12 +21,12 @@ repository               : "amannarsaria4/amannarsaria4.github.io"
 #               Additional customization can be done by editing /_includes/author-profile.html
 author:
   # Biographic information
-  avatar           : "aman_pic.png"
+  avatar           : "aman_pic2.png"
   name             : "Aman Narsaria"
   pronouns         : # example: "she/her"  
   bio              : "Financial Engineering"
   location         : "Berkeley, California"
-  employer         : "Univerisity of California, Berkeley"
+  employer         : "UC Berkeley"
   uri              : # URL
   email            : "amannarsaria4@gmail.com" 
 
