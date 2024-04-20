@@ -10,7 +10,7 @@ redirect_from:
 I am currently pursuing my Masters in financial engineering at UC Berkeley. I am interested in the field of quantitative research. 
 <!-- I like to build simple and intuitive models that can make sense of complex data.  -->
 
-Currently I am working on an Open Range Breakout strategy for FTSE futures, and exploring how can we add more fundamential indicators to improve profitability. 
+Currently I am working on an Open Range Breakout strategy for FTSE futures, and exploring how various indicators can be used to improve profitability. 
 
 Before deciding to pursue further studies in this field, I worked at Dolat Capital, where I developed systematic trading strategies for high-frequency futures trading in the Indian stock market. I also worked on an algorithm to optimize price quotes to minimize potential inventory risks.
 
