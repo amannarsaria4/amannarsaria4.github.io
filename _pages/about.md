@@ -18,6 +18,6 @@ Prior to this, I was at JP Morgan Chase, where I worked with the Equity derivati
 
 I went to BITS Pilani for my undergrad and completed a dual major in M.Sc. Economics and B.E. Computer Science.
 
-Outside of work, I enjoy all kinds playing all kinds of sports. I usually challenge myself and push my limits by going on long distance runs (if all goes well, I plan to run the NYC marathon this year). I also like to cook new things whenever I get time. 
+Outside of work, I enjoy playing all kinds of sports. I usually challenge myself and push my limits by going on long distance runs (if all goes well, I plan to run the NYC marathon this year). I also like to cook new things whenever I get time. 
 
 If you interested in knowing more about any of my projects or my current interests, feel free to drop an email. 
