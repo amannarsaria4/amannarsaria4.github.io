@@ -16,6 +16,6 @@ Currently I am working on an Open Range Breakout strategy for FTSE futures, and 
 
 Before deciding to pursue further studies in this field, I worked at Dolat Capital, where I developed systematic trading strategies for futures trading in the Indian stock market. Prior to this, I was at JP Morgan Chase, where I worked with the Equity derivatives group(EDG) as a Quantitative Reseacher intern, focusing on pricing exotic options using numerical methods. 
 
-Outside of work, I enjoy playing all kinds of sports. I usually challenge myself and push my limits by going on long distance runs (if all goes well, I plan to run the NYC marathon this year :) ). I usually like to cook new cuisines on weekends and try to experiment with different things.
+Outside of work, I enjoy playing all kinds of sports. I usually challenge myself and push my limits by going on long distance runs (if all goes well, I plan to run the NYC marathon this year :) ). I am also learning wind surfing and I usually like to cook new cuisines on weekends and try to experiment with different food items. 
 
 Interested in knowing more about projects, or would like to discuss new ideas? Feel free to drop an email at aman_narsaria@berkeley.edu 
