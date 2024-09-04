@@ -11,9 +11,9 @@ redirect_from:
 
 Education
 ======
-* Ph.D in Version Control Theory, GitHub University, 2018 (expected)
-* M.S. in Jekyll, GitHub University, 2014
-* B.S. in GitHub, GitHub University, 2012
+* M.S. in Financial Engineering, University of California, Berkeley, 2025
+* M.Sc. Economics, Birla Institute of Technology and Science, 2023
+* B.E. Computer Science, Birla Institute of Technology and Science, 2023
 
 Work experience
 ======
