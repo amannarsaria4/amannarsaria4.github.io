@@ -3,8 +3,8 @@ main:
   - title: "About"
   - url: /about/about.html
 
-  - title: "Resume"
-    url: /files/Resume.pdf
+  - title: "CV"
+    url: /_pages/cv.md
   # - title: "Publications"
   #   url: /publications/
 
