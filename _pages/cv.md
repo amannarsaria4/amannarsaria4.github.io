@@ -20,11 +20,10 @@ Previous Work experience
 * Incoming Quantitative Trader/Researcher at BNP Paribas \| Oct 2024 - Dec 2024
   * Rotation in two Global business lines
 
-
 * Quantitaitve Analyst at [Dolat Capital](https://www.dolatcapital.com/) \| Aug 2023 - Jan 2024
-  * Systematic high-frequency futures trading
-  * Traded profitable strategies constructed using indicators like order imbalance, DEMA, Lead-Lag indicators 
-  * 
+  * Systematic high-frequency futures trading on Indian Stock Exchange
+  * Constructed trading strategies using indicators like order imbalance, DEMA, and Lead-Lag indicators 
+  * Implemented dynamic lean strategy to optimize limit order quotes
 
 * Quantitative Researcher Intern at [J.P Morgan Chase](https://www.jpmorganchase.com/) \| July 2022 - June 2023
   * Evaluated exotic equity derivative payoffs using numerical methods
@@ -33,7 +32,11 @@ Previous Work experience
 * Machine Learning Intern at Collab Lab (Ed-tech Startup) \| May 2021 - July 2021
   * Modeled a student classroom by designing various key metrics
   * Implemented a classfication model to predict student actions (based on app chat interactions)
-  * Improved student engagement by 25\%; integrated ML models using FastAPI
+  * Improved student engagement by 25%; integrated ML models using FastAPI
+
+* Financial Markets Intern at [Futures First](https://futuresfirst.com/) \| Jun 2020 - Jul 2020
+  * Analyzed Asian petroleum industry data, created a composite market index from four factors
+  * Forecasted market movements using time-series regression analysis
   
 
 Skills
