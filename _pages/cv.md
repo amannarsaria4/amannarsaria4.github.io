@@ -17,7 +17,7 @@ Education
 
 Previous Work experience
 ======
-* Quantitaitve Analyst at *Dolat Capital* | Aug 2023 - Jan 2024
+* Quantitaitve Analyst at Dolat Capital | Aug 2023 - Jan 2024
   * High frequency futures trading
   * 
 
