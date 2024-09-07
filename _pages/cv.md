@@ -17,9 +17,10 @@ Education
 
 Previous Work experience
 ======
-* Quantitaitve Analyst at Dolat Capital \| Aug 2023 - Jan 2024
-  * High frequency futures trading
-  * 
+* Quantitaitve Analyst at [Dolat Capital](https://www.dolatcapital.com/) \| Aug 2023 - Jan 2024
+  * Systematic high-frequency futures trading
+  * Traded profitable strategies constructed using indicators like order imbalance, DEMA, Lead-Lag indicators fahkfhakwhfkauhfkawuhkwuhka fwa lifhawifalwhflawh
+  *  
 
 * Fall 2015: Research Assistant
   * Github University
