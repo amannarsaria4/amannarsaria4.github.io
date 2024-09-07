@@ -4,7 +4,7 @@ main:
   - url: /about/about.html
 
   - title: "CV"
-    url: /cv.md
+    url: /cv/
   # - title: "Publications"
   #   url: /publications/
 
