@@ -15,12 +15,11 @@ Education
 * M.Sc. Economics, Birla Institute of Technology and Science, 2023
 * B.E. Computer Science, Birla Institute of Technology and Science, 2023
 
-Work experience
+Previous Work experience
 ======
-* Spring 2024: Academic Pages Collaborator
-  * Github University
-  * Duties includes: Updates and improvements to template
-  * Supervisor: The Users
+* Quantitaitve Analyst at *Dolat Capital* | Aug 2023 - Jan 2024
+  * High frequency futures trading
+  * 
 
 * Fall 2015: Research Assistant
   * Github University
