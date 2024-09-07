@@ -1,6 +1,6 @@
 ---
 layout: archive
-title: "CV"
+title: "About me"
 permalink: /cv/
 author_profile: true
 redirect_from:
@@ -9,11 +9,7 @@ redirect_from:
 
 {% include base_path %}
 
-Education
-======
-* M.S. in Financial Engineering, University of California, Berkeley, 2025
-* M.Sc. Economics, Birla Institute of Technology and Science, 2023
-* B.E. Computer Science, Birla Institute of Technology and Science, 2023
+University of California, Berkeley M.S. student in Financial Engineering. Previously completed double majors in Computer Science and Economics from Birla Institute of Technology and Science, Pilani.
 
 Previous Work experience
 ======
@@ -40,28 +36,29 @@ Financial Markets Intern at [Futures First](https://futuresfirst.com/) \| Jun 20
   
 Research Experience
 ======
-* Hamilton Trading \| Hamilton Trading -  April 2024 - Jul 2024
-  * Worked on a long/short intraday open range breakout strategy for the FTSE futures
-  * Researched and improveed strategy performance using various technical indicators like VWAP, momentum, etc.
+Hamilton Trading \| Hamilton Trading -  April 2024 - Jul 2024
+* Worked on a long/short intraday open range breakout strategy for the FTSE futures
+* Researched and improveed strategy performance using various technical indicators like VWAP, momentum, etc.
 
-* Remote Sensing Image Retrieval using Deep Learning Techniques \| BITS Pilani - Jan 2022 - May 2022
-  * Worked under [Prof. Poonam Goyal](https://www.bits-pilani.ac.in/pilani/poonam-goyal/) 
-  * Developed a multimodal system for image retrieval, combining CNN and LSTM networks to generate descriptive image captions
+Remote Sensing Image Retrieval using Deep Learning Techniques \| BITS Pilani - Jan 2022 - May 2022
+* Worked under [Prof. Poonam Goyal](https://www.bits-pilani.ac.in/pilani/poonam-goyal/) 
+* Developed a multimodal system for image retrieval, combining CNN and LSTM networks to generate descriptive image captions
   
-* [Question Answering System](https://drive.google.com/file/d/1sSQMzgrZ6lOfPkdqOkmTA19KyspMSyND/view) \| BITS Pilani - Jan 2021 - May 2021
-  * Designed a system to fetch most relevant FAQ pairs by deploying two models (A)Pooling model: fetched top 100 relevant results (B) Ranking model: ranked these results using cosine similarity
+[Question Answering System](https://drive.google.com/file/d/1sSQMzgrZ6lOfPkdqOkmTA19KyspMSyND/view) \| BITS Pilani - Jan 2021 - May 2021
+* Designed a system to fetch most relevant FAQ pairs by deploying two models (A)Pooling model: fetched top 100 relevant results (B) Ranking model: ranked these results using cosine similarity
 
 Publications
 ======
-  <ul>{% for post in site.publications reversed %}
-    {% include archive-single-cv.html %}
-  {% endfor %}</ul>
+<ul>{% for post in site.publications reversed %}
+  {% include archive-single-cv.html %}
+{% endfor %}</ul>
 
 
 Skills and Certifications
 ======
-* __Programming__: Python, C++, SQL, Flask, FastAPI, PyTorch
-* __Mathematics and Statistics__: Stochastic Calculus, Probability and Statistics, Econometrics, Linear Algebra, Derivatives, 
-* __Computer Science__: Data Structures and Algorithms, Computer Architecture, Information Retrieval, Compilers, Object Oriented Programming, Database Systems
-* __Economics__: Derivatives and risk management, Securities, portfolio and Asset management, Applied Econometrics, Business Valuation, Fundamentals of financial accounting
+__Programming__: Python, C++, SQL, Flask, FastAPI, PyTorch
+__Mathematics and Statistics__: Stochastic Calculus, Probability and Statistics, Econometrics, Linear Algebra, Derivatives, 
+__Computer Science__: Data Structures and Algorithms, Computer Architecture, Information Retrieval, Compilers, Object Oriented Programming, Database Systems
+__Economics__: Derivatives and risk management, Securities, portfolio and Asset management, Applied Econometrics, Business Valuation, Fundamentals of financial accounting
+
 
