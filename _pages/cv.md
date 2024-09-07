@@ -39,13 +39,14 @@ Research Experience
 ======
 Hamilton Trading \| Hamilton Trading -  April 2024 - Jul 2024
 * Worked on a long/short intraday open range breakout strategy for the FTSE futures
-* Researched and improveed strategy performance using various technical indicators like VWAP, momentum, etc.
+* Researched and improved strategy performance using various technical indicators like VWAP, momentum, etc.
 
 Remote Sensing Image Retrieval using Deep Learning Techniques \| BITS Pilani - Jan 2022 - May 2022
 * Worked under [Prof. Poonam Goyal](https://www.bits-pilani.ac.in/pilani/poonam-goyal/) 
 * Developed a multimodal system for image retrieval, combining CNN and LSTM networks to generate descriptive image captions
   
 [Question Answering System](https://drive.google.com/file/d/1sSQMzgrZ6lOfPkdqOkmTA19KyspMSyND/view) \| BITS Pilani - Jan 2021 - May 2021
+* Worked under [Prof. Yashwardhan Sharma ](https://www.bits-pilani.ac.in/pilani/yashvardhan-sharma/)
 * Designed a system to fetch most relevant FAQ pairs by deploying two models (A)Pooling model: fetched top 100 relevant results (B) Ranking model: ranked these results using cosine similarity
 
 Publications
@@ -63,3 +64,4 @@ __Computer Science__: Data Structures and Algorithms, Computer Architecture, Inf
 __Economics__: Derivatives and risk management, Securities, portfolio and Asset management, Applied Econometrics, Business Valuation, Fundamentals of financial accounting    
 
 
+Reach out to aman_narsaria(at)berkeley.edu for my latest resume if you are interested.
