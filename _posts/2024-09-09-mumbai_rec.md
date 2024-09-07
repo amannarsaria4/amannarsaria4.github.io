@@ -6,5 +6,4 @@ tags:
   - places
 ---
 
-
 Also another great city!
