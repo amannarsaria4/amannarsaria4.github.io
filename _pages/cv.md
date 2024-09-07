@@ -9,7 +9,8 @@ redirect_from:
 
 {% include base_path %}
 
-University of California, Berkeley M.S. student in Financial Engineering. Previously completed double majors in Computer Science and Economics from Birla Institute of Technology and Science, Pilani.
+University of California, Berkeley M.S. student in Financial Engineering.   
+Double majors in Computer Science and Economics from Birla Institute of Technology and Science, Pilani.
 
 Previous Work experience
 ======
@@ -56,9 +57,9 @@ Publications
 
 Skills and Certifications
 ======
-__Programming__: Python, C++, SQL, Flask, FastAPI, PyTorch
-__Mathematics and Statistics__: Stochastic Calculus, Probability and Statistics, Econometrics, Linear Algebra, Derivatives, 
-__Computer Science__: Data Structures and Algorithms, Computer Architecture, Information Retrieval, Compilers, Object Oriented Programming, Database Systems
-__Economics__: Derivatives and risk management, Securities, portfolio and Asset management, Applied Econometrics, Business Valuation, Fundamentals of financial accounting
+__Programming__: Python, C++, SQL, Flask, FastAPI, PyTorch     
+__Mathematics and Statistics__: Stochastic Calculus, Probability and Statistics, Econometrics, Linear Algebra, Derivatives     
+__Computer Science__: Data Structures and Algorithms, Computer Architecture, Information Retrieval, Compilers, Object Oriented Programming, Database Systems     
+__Economics__: Derivatives and risk management, Securities, portfolio and Asset management, Applied Econometrics, Business Valuation, Fundamentals of financial accounting    
 
 
