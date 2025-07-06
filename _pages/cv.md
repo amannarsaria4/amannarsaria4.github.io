@@ -9,8 +9,8 @@ redirect_from:
 
 {% include base_path %}
 
-UC, Berkeley M.S. in Financial Engineering   
-Birla Institute of Technology and Science, Pilani double majors in Computer Science and Economics from 
+University of California, Berkeley - M.S. in Financial Engineering   
+Birla Institute of Technology and Science, Pilani - double majors in Computer Science and Economics 
 
 Previous Work experience
 ======

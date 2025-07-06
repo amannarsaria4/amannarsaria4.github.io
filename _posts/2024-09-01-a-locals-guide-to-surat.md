@@ -1,5 +1,5 @@
 ---
-title: 'A Local's guide to surat'
+title: 'A Locals guide to surat'
 date: 2024-09-01
 permalink: /posts/2024/09/surat-rec/
 tags:
