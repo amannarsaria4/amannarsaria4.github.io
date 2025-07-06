@@ -1,7 +1,7 @@
 ---
 layout: single
 title: 'Why did I start running and why its the greatest thing'
-date: 2024-09-07
+date: 2025-07-05
 header:
   teaser: "unsplash-gallery-image-2-th.jpg"
 categories: 
