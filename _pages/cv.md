@@ -50,7 +50,6 @@ Remote Sensing Image Retrieval using Deep Learning Techniques \| BITS Pilani - J
 * Designed a system to fetch most relevant FAQ pairs by deploying two models (A)Pooling model: fetched top 100 relevant results (B) Ranking model: ranked these results using cosine similarity
 
 Publications
-======
 <ul>{% for post in site.publications reversed %}
   {% include archive-single-cv.html %}
 {% endfor %}</ul>
