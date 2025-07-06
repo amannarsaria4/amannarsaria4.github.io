@@ -9,20 +9,20 @@ redirect_from:
 
 {% include base_path %}
 
-University of California, Berkeley M.S. student in Financial Engineering.   
-Double majors in Computer Science and Economics from Birla Institute of Technology and Science, Pilani.
+UC, Berkeley M.S. in Financial Engineering   
+Birla Institute of Technology and Science, Pilani double majors in Computer Science and Economics from 
 
 Previous Work experience
 ======
-Incoming Quantitative Trader/Researcher at [BNP Paribas](https://usa.bnpparibas/en/) \| Oct 2024 - Dec 2024
-* Rotation in two Global business lines
+Quantitative Trader/Researcher at [BNP Paribas](https://usa.bnpparibas/en/) \| Oct 2024 - Dec 2024
+* Equity derivatives / Fixed income asset class
 
 Quantitaitve Analyst at [Dolat Capital](https://www.dolatcapital.com/) \| Aug 2023 - Jan 2024
-* Systematic high-frequency futures trading on Indian Stock Exchange
+* Systematic equity futures trading on Indian Stock Exchange
 * Constructed trading strategies using indicators like order imbalance, Lead-Lag indicators, and etc. 
 * Implemented dynamic lean strategy to optimize limit order quotes based on inventory
 
-Quantitative Researcher Intern at [J.P Morgan Chase](https://www.jpmorganchase.com/) \| July 2022 - June 2023
+Quantitative Researcher Intern at [J.P. Morgan Chase & Co.](https://www.jpmorganchase.com/) \| July 2022 - June 2023
 * Evaluated exotic equity derivative payoffs using numerical methods
 * Worked on products like basket rebalance model, Pick and Freeze model, and accelerated share repurchase contracts 
 
@@ -50,14 +50,15 @@ Remote Sensing Image Retrieval using Deep Learning Techniques \| BITS Pilani - J
 * Designed a system to fetch most relevant FAQ pairs by deploying two models (A)Pooling model: fetched top 100 relevant results (B) Ranking model: ranked these results using cosine similarity
 
 Publications
+======
 <ul>{% for post in site.publications reversed %}
   {% include archive-single-cv.html %}
 {% endfor %}</ul>
 
 
-Skills and Certifications
+Technical Skills:
 ======
-__Programming__: Python, C++, SQL, Flask, FastAPI, PyTorch     
+__Programming__: Python, C++, SQL, Flask, FastAPI, PyTorch, Bloomberg  
 __Mathematics and Statistics__: Stochastic Calculus, Probability and Statistics, Econometrics, Linear Algebra, Derivatives     
 __Computer Science__: Data Structures and Algorithms, Computer Architecture, Information Retrieval, Compilers, Object Oriented Programming, Database Systems     
 __Economics__: Derivatives and risk management, Securities, portfolio and Asset management, Applied Econometrics, Business Valuation, Fundamentals of financial accounting    
