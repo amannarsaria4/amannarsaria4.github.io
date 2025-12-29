@@ -18,28 +18,17 @@ Most people just don’t know where their money actually goes.
 
 Donating today often requires a leap of faith. You give because you trust an organization’s intent, reputation, or story—but rarely because you can clearly see how your contribution moved through the system and into the real world.
 
-This blog — and this initiative — exists to challenge that norm.
+This blog — and this thought — exists to challenge that norm.
 
-The Problem Isn’t Bad Intent. It’s Bad Design.
-
-The nonprofit world is full of people doing meaningful, difficult work. This isn’t a critique of effort or integrity.
-
-It is a critique of systems.
+The Problem Isn’t Bad Intent. It’s Bad Design. This post is a critique of systems.
 
 Most charitable systems were never designed for transparency at the individual level. Money goes in, impact is reported in aggregates, and donors are asked to trust that things balance out somewhere behind the scenes.
 
-But trust shouldn’t be assumed.
-It should be designed, verified, and continuously earned.
-
-In nearly every other part of modern life — finance, logistics, even personal fitness — we expect visibility. We can track where our packages are, how our money is spent, and how our time is allocated.
-
-Giving should not be the exception.
-
-A Simple Principle
+But trust shouldn’t be assumed. It needs to be earned.
 
 This initiative is built on one non-negotiable idea:
 
-Every cent in. Every cent out. Visible to everyone.
+*Every cent in. Every cent out. Visible to everyone.*
 
 That means:
 
@@ -47,13 +36,9 @@ Every donation is tracked
 
 Every expense is recorded
 
-Anyone can see where money is being spent
+Anyone can see where money is being spent - where THEIR money is spent
 
 Donors can see their total lifetime contribution, not just a thank-you email
-
-No vague categories.
-No “trust us” summaries.
-No black boxes.
 
 If a system can’t explain where money went, it shouldn’t be handling money meant to help people.
 
@@ -63,7 +48,7 @@ This won’t be perfect on day one — and that’s intentional to say upfront.
 
 Initially:
 
-Donations will be logged transparently
+Donations will be logged transparently. People who want to donate anonymously can track their donations using a unique identifier.
 
 Spending will be broken down into clear categories (food, shelter, medical aid, education, emergency support, etc.)
 
@@ -80,7 +65,7 @@ Giving With Intent, Not Just Emotion
 
 Eventually, donors will be able to choose where they want their money to go.
 
-If you care most about food security, your contribution can be directed there.
+If you care most about food security, your specific contribution can be directed there.
 If shelter or medical aid resonates more, you can choose that instead.
 
 This isn’t about fragmenting effort or optimizing personal preferences.
@@ -90,9 +75,7 @@ When people understand impact, they give more thoughtfully and more consistently
 
 Why I’m Doing This
 
-I believe trust should be engineered into systems, not requested afterward.
-
-I believe transparency shouldn’t be a marketing claim — it should be a default setting.
+I believe trust and transparency should be engineered into systems, not requested afterward.
 
 And I believe that if we can clearly track money meant to generate profit, we should absolutely be able to track money meant to help people.
 
@@ -110,6 +93,5 @@ It’s a beginning.
 I’m putting this idea out publicly so it can be questioned, improved, and built correctly. If you believe that giving should come with clarity — not blind trust — then you already understand what this is about.
 
 More details will follow.
-So will uncomfortable numbers.
 
 That’s the point.
