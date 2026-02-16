@@ -6,13 +6,7 @@ tags:
   - technical
 ---
 
-
-
-
-
-# Monte Carlo Pricing of Barrier Options  
-
-From Constant Volatility to Local Volatility, Stochastic Volatility, and Jumps
+Pricing Barrier Options using MC simulations. From Constant Volatility to Local Volatility, Stochastic Volatility, and Jumps
 
 This write-up explains **what we are doing** and **why we are doing it** when pricing barrier options using Monte Carlo (MC).
 
@@ -34,7 +28,7 @@ Analytical (closed-form) solutions exist only when the model and payoff are simp
 - **Heston** has semi-closed forms for European options via Fourier methods.
 - **PDE** methods can price many products in low dimensions (typically 1–2 state variables).
 
-Analytical methods start to fail (or become unwieldy) when:
+Analytical methods start to fail when:
 
 ### 1) Payoffs are path-dependent
 Barrier options depend on the entire path:
