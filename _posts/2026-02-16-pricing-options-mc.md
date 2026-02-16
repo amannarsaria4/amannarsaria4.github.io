@@ -10,6 +10,13 @@ Pricing Barrier Options using MC simulations. From Constant Volatility to Local 
 
 This write-up explains **what we are doing** and **why we are doing it** when pricing barrier options using Monte Carlo (MC).
 
+You can find the link to the code here: [Monte Carlo Option Pricing Repo](https://github.com/amannarsaria4/mc_option_pricing)
+
+
+note for myself:
+1. add comments in code
+2. add intuition in explantaion
+
 ---
 
 # A. Foundations
