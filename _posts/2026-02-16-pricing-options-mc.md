@@ -6,8 +6,7 @@ tags:
   - places
 ---
 
-# Monte Carlo Pricing of Barrier Options  
-### From Constant Volatility to Local Volatility, Stochastic Volatility, and Jumps
+***From Constant Volatility to Local Volatility, Stochastic Volatility, and Jumps***
 
 This write-up explains **what we are doing** and **why we are doing it** when pricing barrier options using Monte Carlo (MC). My goal is a technical but accescible article.
 
