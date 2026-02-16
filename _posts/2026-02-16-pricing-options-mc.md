@@ -1,7 +1,20 @@
-# Monte Carlo Pricing of Barrier Options  
-### From Constant Volatility to Local Volatility, Stochastic Volatility, and Jumps
+---
+title: 'Monte Carlo Pricing of Barrier Options '
+date: 2026-02-12
+permalink: /posts/2026/02/pricing_dki_mc/
+tags:
+  - technical
+---
 
-This write-up explains **what we are doing** and **why we are doing it** when pricing barrier options using Monte Carlo (MC). The goal is a technical but accessible treatment suitable for a master’s-level reader.
+
+
+
+
+# Monte Carlo Pricing of Barrier Options  
+
+From Constant Volatility to Local Volatility, Stochastic Volatility, and Jumps
+
+This write-up explains **what we are doing** and **why we are doing it** when pricing barrier options using Monte Carlo (MC).
 
 ---
 
@@ -19,7 +32,7 @@ Analytical (closed-form) solutions exist only when the model and payoff are simp
 
 - **Black–Scholes** gives closed forms for European calls/puts under constant volatility.
 - **Heston** has semi-closed forms for European options via Fourier methods.
-- PDE methods can price many products in low dimensions (typically 1–2 state variables).
+- **PDE** methods can price many products in low dimensions (typically 1–2 state variables).
 
 Analytical methods start to fail (or become unwieldy) when:
 
