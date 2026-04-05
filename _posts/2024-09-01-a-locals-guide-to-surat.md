@@ -8,5 +8,5 @@ tags:
 
 Coming soon!
 
-Theres just so much to do. But the best thing ot do in this city is def eat. 
+Theres just so much to do. But the best thing to do in this city is def eat. 
 Recs coming soon!
