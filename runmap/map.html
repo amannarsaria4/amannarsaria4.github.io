@@ -1,712 +1,399 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Running Dashboard</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0
-        }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Running Dashboard</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0f0f0f;color:#e0e0e0;padding:1.25rem}
+h2{font-size:14px;font-weight:500;color:#888;text-transform:uppercase;letter-spacing:.08em;margin-bottom:1rem}
+h3{font-size:18px;font-weight:500;color:#fff;margin-bottom:.25rem}
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            background: #0f0f0f;
-            color: #e0e0e0;
-            padding: 1.25rem
-        }
+/* Overall stats */
+.top-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:1.5rem}
+.stat{background:#1a1a1a;border-radius:10px;padding:.75rem 1rem}
+.stat-label{font-size:11px;color:#666;margin-bottom:3px;text-transform:uppercase;letter-spacing:.06em}
+.stat-value{font-size:22px;font-weight:500;color:#fff}
+.stat-sub{font-size:11px;color:#555;margin-top:2px}
 
-        h2 {
-            font-size: 14px;
-            font-weight: 500;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: .08em;
-            margin-bottom: 1rem
-        }
+/* City tabs */
+.city-tabs{display:flex;gap:4px;margin-bottom:1rem}
+.city-tab{padding:7px 18px;border-radius:8px;border:1px solid #2a2a2a;background:#1a1a1a;color:#888;cursor:pointer;font-size:13px;font-family:inherit;transition:all .15s}
+.city-tab:hover{border-color:#444;color:#ccc}
+.city-tab.active{border-color:transparent;color:#fff}
+.city-tab[data-city="New York"].active{background:#1a3a5c;color:#5baef7;border-color:#2a5a8c}
+.city-tab[data-city="San Francisco"].active{background:#0e3327;color:#1D9E75;border-color:#1D9E75}
+.city-tab[data-city="Berkeley"].active{background:#3a1a0a;color:#D85A30;border-color:#D85A30}
 
-        h3 {
-            font-size: 18px;
-            font-weight: 500;
-            color: #fff;
-            margin-bottom: .25rem
-        }
+/* City panel */
+.city-panel{display:none}
+.city-panel.active{display:block}
+.city-header{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:.75rem}
+.city-stat{background:#1a1a1a;border-radius:8px;padding:.6rem .85rem}
+.city-stat-label{font-size:10px;color:#555;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.city-stat-value{font-size:17px;font-weight:500;color:#fff}
 
-        /* Overall stats */
-        .top-stats {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
-            margin-bottom: 1.5rem
-        }
+/* Map */
+.map-wrap{position:relative;border-radius:10px;overflow:hidden;border:1px solid #222;margin-bottom:1.5rem}
+.map-el{height:420px}
+.map-controls{position:absolute;top:10px;right:10px;z-index:1000;display:flex;gap:6px;flex-direction:column}
+.map-btn{background:rgba(20,20,20,.92);border:1px solid #333;border-radius:7px;padding:5px 11px;font-size:12px;color:#ccc;cursor:pointer;font-family:inherit;backdrop-filter:blur(4px)}
+.map-btn:hover{background:rgba(40,40,40,.95)}
+.map-btn.active{color:#5baef7;border-color:#2a5a8c}
 
-        .stat {
-            background: #1a1a1a;
-            border-radius: 10px;
-            padding: .75rem 1rem
-        }
+/* Charts grid */
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.5rem}
+.chart-card{background:#1a1a1a;border-radius:10px;padding:1rem 1.25rem}
+.chart-card.full{grid-column:1/-1}
+.chart-title{font-size:13px;font-weight:500;color:#aaa;margin-bottom:.75rem}
+.chart-wrap{position:relative}
 
-        .stat-label {
-            font-size: 11px;
-            color: #666;
-            margin-bottom: 3px;
-            text-transform: uppercase;
-            letter-spacing: .06em
-        }
+/* Popup overrides */
+.leaflet-popup-content-wrapper{background:#1e1e1e;color:#ddd;border:1px solid #333;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,.6)}
+.leaflet-popup-tip{background:#1e1e1e}
+.leaflet-popup-content{margin:10px 14px;font-size:13px;line-height:1.6}
+.leaflet-popup-content b{color:#fff;font-size:14px}
+.popup-meta{color:#999;font-size:12px}
+.popup-stats{margin-top:4px;color:#ccc}
 
-        .stat-value {
-            font-size: 22px;
-            font-weight: 500;
-            color: #fff
-        }
-
-        .stat-sub {
-            font-size: 11px;
-            color: #555;
-            margin-top: 2px
-        }
-
-        /* City tabs */
-        .city-tabs {
-            display: flex;
-            gap: 4px;
-            margin-bottom: 1rem
-        }
-
-        .city-tab {
-            padding: 7px 18px;
-            border-radius: 8px;
-            border: 1px solid #2a2a2a;
-            background: #1a1a1a;
-            color: #888;
-            cursor: pointer;
-            font-size: 13px;
-            font-family: inherit;
-            transition: all .15s
-        }
-
-        .city-tab:hover {
-            border-color: #444;
-            color: #ccc
-        }
-
-        .city-tab.active {
-            border-color: transparent;
-            color: #fff
-        }
-
-        .city-tab[data-city="New York"].active {
-            background: #1a3a5c;
-            color: #5baef7;
-            border-color: #2a5a8c
-        }
-
-        .city-tab[data-city="San Francisco"].active {
-            background: #0e3327;
-            color: #1D9E75;
-            border-color: #1D9E75
-        }
-
-        .city-tab[data-city="Berkeley"].active {
-            background: #3a1a0a;
-            color: #D85A30;
-            border-color: #D85A30
-        }
-
-        /* City panel */
-        .city-panel {
-            display: none
-        }
-
-        .city-panel.active {
-            display: block
-        }
-
-        .city-header {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
-            margin-bottom: .75rem
-        }
-
-        .city-stat {
-            background: #1a1a1a;
-            border-radius: 8px;
-            padding: .6rem .85rem
-        }
-
-        .city-stat-label {
-            font-size: 10px;
-            color: #555;
-            text-transform: uppercase;
-            letter-spacing: .06em;
-            margin-bottom: 2px
-        }
-
-        .city-stat-value {
-            font-size: 17px;
-            font-weight: 500;
-            color: #fff
-        }
-
-        /* Map */
-        .map-wrap {
-            position: relative;
-            border-radius: 10px;
-            overflow: hidden;
-            border: 1px solid #222;
-            margin-bottom: 1.5rem
-        }
-
-        .map-el {
-            height: 420px
-        }
-
-        .map-controls {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 1000;
-            display: flex;
-            gap: 6px;
-            flex-direction: column
-        }
-
-        .map-btn {
-            background: rgba(20, 20, 20, .92);
-            border: 1px solid #333;
-            border-radius: 7px;
-            padding: 5px 11px;
-            font-size: 12px;
-            color: #ccc;
-            cursor: pointer;
-            font-family: inherit;
-            backdrop-filter: blur(4px)
-        }
-
-        .map-btn:hover {
-            background: rgba(40, 40, 40, .95)
-        }
-
-        .map-btn.active {
-            color: #5baef7;
-            border-color: #2a5a8c
-        }
-
-        /* Charts grid */
-        .charts-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 1.5rem
-        }
-
-        .chart-card {
-            background: #1a1a1a;
-            border-radius: 10px;
-            padding: 1rem 1.25rem
-        }
-
-        .chart-card.full {
-            grid-column: 1/-1
-        }
-
-        .chart-title {
-            font-size: 13px;
-            font-weight: 500;
-            color: #aaa;
-            margin-bottom: .75rem
-        }
-
-        .chart-wrap {
-            position: relative
-        }
-
-        /* Popup overrides */
-        .leaflet-popup-content-wrapper {
-            background: #1e1e1e;
-            color: #ddd;
-            border: 1px solid #333;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, .6)
-        }
-
-        .leaflet-popup-tip {
-            background: #1e1e1e
-        }
-
-        .leaflet-popup-content {
-            margin: 10px 14px;
-            font-size: 13px;
-            line-height: 1.6
-        }
-
-        .leaflet-popup-content b {
-            color: #fff;
-            font-size: 14px
-        }
-
-        .popup-meta {
-            color: #999;
-            font-size: 12px
-        }
-
-        .popup-stats {
-            margin-top: 4px;
-            color: #ccc
-        }
-
-        /* Run list */
-        .run-list {
-            max-height: 220px;
-            overflow-y: auto;
-            margin-top: .5rem
-        }
-
-        .run-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 5px 0;
-            border-bottom: 1px solid #222;
-            font-size: 12px;
-            cursor: pointer
-        }
-
-        .run-row:hover {
-            color: #fff
-        }
-
-        .run-row:last-child {
-            border-bottom: none
-        }
-
-        .run-date {
-            color: #666;
-            min-width: 80px
-        }
-
-        .run-km {
-            color: #aaa;
-            min-width: 60px;
-            text-align: right
-        }
-
-        .run-pace {
-            color: #666;
-            min-width: 70px;
-            text-align: right
-        }
-    </style>
+/* Run list */
+.run-list{max-height:220px;overflow-y:auto;margin-top:.5rem}
+.run-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #222;font-size:12px;cursor:pointer}
+.run-row:hover{color:#fff}
+.run-row:last-child{border-bottom:none}
+.run-date{color:#666;min-width:80px}
+.run-km{color:#aaa;min-width:60px;text-align:right}
+.run-pace{color:#666;min-width:70px;text-align:right}
+</style>
 </head>
-
 <body>
 
-    <div class="top-stats">
-        <div class="stat">
-            <div class="stat-label">Total runs</div>
-            <div class="stat-value">68</div>
-            <div class="stat-sub">Nov 2024 – Apr 2026</div>
-        </div>
-        <div class="stat">
-            <div class="stat-label">Distance</div>
-            <div class="stat-value">525 km</div>
-            <div class="stat-sub">326 miles</div>
-        </div>
-        <div class="stat">
-            <div class="stat-label">Moving time</div>
-            <div class="stat-value">48.7 h</div>
-            <div class="stat-sub">2,924 minutes</div>
-        </div>
-        <div class="stat">
-            <div class="stat-label">Calories</div>
-            <div class="stat-value">152k</div>
-            <div class="stat-sub">kcal burned</div>
-        </div>
-        <div class="stat">
-            <div class="stat-label">Avg pace</div>
-            <div class="stat-value">5:34</div>
-            <div class="stat-sub">min / km</div>
-        </div>
+<div class="top-stats">
+  <div class="stat"><div class="stat-label">Total runs</div><div class="stat-value">68</div><div class="stat-sub">Nov 2024 – Apr 2026</div></div>
+  <div class="stat"><div class="stat-label">Distance</div><div class="stat-value">525 km</div><div class="stat-sub">326 miles</div></div>
+  <div class="stat"><div class="stat-label">Moving time</div><div class="stat-value">48.7 h</div><div class="stat-sub">2,924 minutes</div></div>
+  <div class="stat"><div class="stat-label">Calories</div><div class="stat-value">152k</div><div class="stat-sub">kcal burned</div></div>
+  <div class="stat"><div class="stat-label">Avg pace</div><div class="stat-value">5:34</div><div class="stat-sub">min / km</div></div>
+</div>
+
+<!-- City maps -->
+<h2>Maps by city</h2>
+<div class="city-tabs">
+  <button class="city-tab active" data-city="New York" onclick="switchCity('New York')">New York <span style="color:#555;margin-left:4px">51</span></button>
+  <button class="city-tab" data-city="San Francisco" onclick="switchCity('San Francisco')">San Francisco <span style="color:#555;margin-left:4px">9</span></button>
+  <button class="city-tab" data-city="Berkeley" onclick="switchCity('Berkeley')">Berkeley <span style="color:#555;margin-left:4px">7</span></button>
+</div>
+
+<!-- NEW YORK -->
+<div class="city-panel active" id="panel-New York">
+  <div class="city-header">
+    <div class="city-stat"><div class="city-stat-label">Runs</div><div class="city-stat-value">51</div></div>
+    <div class="city-stat"><div class="city-stat-label">Distance</div><div class="city-stat-value">405 km</div></div>
+    <div class="city-stat"><div class="city-stat-label">Avg pace</div><div class="city-stat-value">5:40</div></div>
+    <div class="city-stat"><div class="city-stat-label">Avg HR</div><div class="city-stat-value">159 bpm</div></div>
+    <div class="city-stat"><div class="city-stat-label">Longest</div><div class="city-stat-value">21.0 km</div></div>
+  </div>
+  <div class="map-wrap">
+    <div class="map-el" id="map-ny"></div>
+    <div class="map-controls">
+      <button class="map-btn active" id="btn-ny-routes" onclick="toggleMap('ny','routes')">Routes</button>
+      <button class="map-btn active" id="btn-ny-heat" onclick="toggleMap('ny','heat')">Heatmap</button>
+      <button class="map-btn" onclick="resetMap('ny')">Reset</button>
     </div>
+  </div>
+</div>
 
-    <!-- City maps -->
-    <h2>Maps by city</h2>
-    <div class="city-tabs">
-        <button class="city-tab active" data-city="New York" onclick="switchCity('New York')">New York <span
-                style="color:#555;margin-left:4px">51</span></button>
-        <button class="city-tab" data-city="San Francisco" onclick="switchCity('San Francisco')">San Francisco <span
-                style="color:#555;margin-left:4px">9</span></button>
-        <button class="city-tab" data-city="Berkeley" onclick="switchCity('Berkeley')">Berkeley <span
-                style="color:#555;margin-left:4px">7</span></button>
+<!-- SAN FRANCISCO -->
+<div class="city-panel" id="panel-San Francisco">
+  <div class="city-header">
+    <div class="city-stat"><div class="city-stat-label">Runs</div><div class="city-stat-value">9</div></div>
+    <div class="city-stat"><div class="city-stat-label">Distance</div><div class="city-stat-value">74.6 km</div></div>
+    <div class="city-stat"><div class="city-stat-label">Avg pace</div><div class="city-stat-value">5:25</div></div>
+    <div class="city-stat"><div class="city-stat-label">Avg HR</div><div class="city-stat-value">144 bpm</div></div>
+    <div class="city-stat"><div class="city-stat-label">Longest</div><div class="city-stat-value">11.2 km</div></div>
+  </div>
+  <div class="map-wrap">
+    <div class="map-el" id="map-sf"></div>
+    <div class="map-controls">
+      <button class="map-btn active" id="btn-sf-routes" onclick="toggleMap('sf','routes')">Routes</button>
+      <button class="map-btn active" id="btn-sf-heat" onclick="toggleMap('sf','heat')">Heatmap</button>
+      <button class="map-btn" onclick="resetMap('sf')">Reset</button>
     </div>
+  </div>
+</div>
 
-    <!-- NEW YORK -->
-    <div class="city-panel active" id="panel-New York">
-        <div class="city-header">
-            <div class="city-stat">
-                <div class="city-stat-label">Runs</div>
-                <div class="city-stat-value">51</div>
-            </div>
-            <div class="city-stat">
-                <div class="city-stat-label">Distance</div>
-                <div class="city-stat-value">405 km</div>
-            </div>
-            <div class="city-stat">
-                <div class="city-stat-label">Avg pace</div>
-                <div class="city-stat-value">5:40</div>
-            </div>
-            <div class="city-stat">
-                <div class="city-stat-label">Avg HR</div>
-                <div class="city-stat-value">159 bpm</div>
-            </div>
-            <div class="city-stat">
-                <div class="city-stat-label">Longest</div>
-                <div class="city-stat-value">21.0 km</div>
-            </div>
-        </div>
-        <div class="map-wrap">
-            <div class="map-el" id="map-ny"></div>
-            <div class="map-controls">
-                <button class="map-btn active" id="btn-ny-routes" onclick="toggleMap('ny','routes')">Routes</button>
-                <button class="map-btn active" id="btn-ny-heat" onclick="toggleMap('ny','heat')">Heatmap</button>
-                <button class="map-btn" onclick="resetMap('ny')">Reset</button>
-            </div>
-        </div>
+<!-- BERKELEY -->
+<div class="city-panel" id="panel-Berkeley">
+  <div class="city-header">
+    <div class="city-stat"><div class="city-stat-label">Runs</div><div class="city-stat-value">7</div></div>
+    <div class="city-stat"><div class="city-stat-label">Distance</div><div class="city-stat-value">41.8 km</div></div>
+    <div class="city-stat"><div class="city-stat-label">Avg pace</div><div class="city-stat-value">5:15</div></div>
+    <div class="city-stat"><div class="city-stat-label">Avg HR</div><div class="city-stat-value">165 bpm</div></div>
+    <div class="city-stat"><div class="city-stat-label">Longest</div><div class="city-stat-value">8.0 km</div></div>
+  </div>
+  <div class="map-wrap">
+    <div class="map-el" id="map-bk"></div>
+    <div class="map-controls">
+      <button class="map-btn active" id="btn-bk-routes" onclick="toggleMap('bk','routes')">Routes</button>
+      <button class="map-btn active" id="btn-bk-heat" onclick="toggleMap('bk','heat')">Heatmap</button>
+      <button class="map-btn" onclick="resetMap('bk')">Reset</button>
     </div>
+  </div>
+</div>
 
-    <!-- SAN FRANCISCO -->
-    <div class="city-panel" id="panel-San Francisco">
-        <div class="city-header">
-            <div class="city-stat">
-                <div class="city-stat-label">Runs</div>
-                <div class="city-stat-value">9</div>
-            </div>
-            <div class="city-stat">
-                <div class="city-stat-label">Distance</div>
-                <div class="city-stat-value">74.6 km</div>
-            </div>
-            <div class="city-stat">
-                <div class="city-stat-label">Avg pace</div>
-                <div class="city-stat-value">5:25</div>
-            </div>
-            <div class="city-stat">
-                <div class="city-stat-label">Avg HR</div>
-                <div class="city-stat-value">144 bpm</div>
-            </div>
-            <div class="city-stat">
-                <div class="city-stat-label">Longest</div>
-                <div class="city-stat-value">11.2 km</div>
-            </div>
-        </div>
-        <div class="map-wrap">
-            <div class="map-el" id="map-sf"></div>
-            <div class="map-controls">
-                <button class="map-btn active" id="btn-sf-routes" onclick="toggleMap('sf','routes')">Routes</button>
-                <button class="map-btn active" id="btn-sf-heat" onclick="toggleMap('sf','heat')">Heatmap</button>
-                <button class="map-btn" onclick="resetMap('sf')">Reset</button>
-            </div>
-        </div>
-    </div>
+<!-- Charts -->
+<h2 style="margin-top:1.5rem">Stats &amp; trends</h2>
+<div class="charts-grid">
+  <div class="chart-card full">
+    <div class="chart-title">Monthly distance (km)</div>
+    <div class="chart-wrap" style="height:180px"><canvas id="chart-monthly"></canvas></div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">Pace over time (min/km) — hover for details</div>
+    <div class="chart-wrap" style="height:200px"><canvas id="chart-pace"></canvas></div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">Heart rate vs pace</div>
+    <div class="chart-wrap" style="height:200px"><canvas id="chart-hrpace"></canvas></div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">Run distance distribution</div>
+    <div class="chart-wrap" style="height:200px"><canvas id="chart-dist"></canvas></div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">Pace by city</div>
+    <div class="chart-wrap" style="height:200px"><canvas id="chart-citypace"></canvas></div>
+  </div>
+</div>
 
-    <!-- BERKELEY -->
-    <div class="city-panel" id="panel-Berkeley">
-        <div class="city-header">
-            <div class="city-stat">
-                <div class="city-stat-label">Runs</div>
-                <div class="city-stat-value">7</div>
-            </div>
-            <div class="city-stat">
-                <div class="city-stat-label">Distance</div>
-                <div class="city-stat-value">41.8 km</div>
-            </div>
-            <div class="city-stat">
-                <div class="city-stat-label">Avg pace</div>
-                <div class="city-stat-value">5:15</div>
-            </div>
-            <div class="city-stat">
-                <div class="city-stat-label">Avg HR</div>
-                <div class="city-stat-value">165 bpm</div>
-            </div>
-            <div class="city-stat">
-                <div class="city-stat-label">Longest</div>
-                <div class="city-stat-value">8.0 km</div>
-            </div>
-        </div>
-        <div class="map-wrap">
-            <div class="map-el" id="map-bk"></div>
-            <div class="map-controls">
-                <button class="map-btn active" id="btn-bk-routes" onclick="toggleMap('bk','routes')">Routes</button>
-                <button class="map-btn active" id="btn-bk-heat" onclick="toggleMap('bk','heat')">Heatmap</button>
-                <button class="map-btn" onclick="resetMap('bk')">Reset</button>
-            </div>
-        </div>
-    </div>
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────
+const NY_RUNS = [{"d":"2026-04-03","n":"New York Running","km":7.75,"m":43.6,"hr":151.0,"pace":5.63,"w":[[40.743236895650625,-73.97167372517288],[40.73113778606057,-73.97405586205423],[40.73140793479979,-73.98269886150956],[40.723240692168474,-73.98905276320875],[40.72385776787996,-73.9910429622978],[40.725644789636135,-73.99706837721169],[40.73213799856603,-73.9966257289052],[40.73467327281833,-73.99450468830764],[40.739146610721946,-73.99127773940563],[40.740294428542256,-73.99043845944107],[40.742553267627954,-73.98768701590598],[40.744769694283605,-73.98519172333181],[40.744937835261226,-73.97577624768019],[40.74386126361787,-73.97336091846228],[40.74357233941555,-73.97257100790739]]},{"d":"2026-03-30","n":"New York Running","km":5.02,"m":27.2,"hr":168.0,"pace":5.42,"w":[[40.7231184002012,-73.98886794224381],[40.72431206703186,-73.99251147173345],[40.72524916380644,-73.99528034962714],[40.72560824453831,-73.99670493789017],[40.727976048365235,-74.00127030909061],[40.73142905719578,-73.99685639888048],[40.73288801126182,-73.99582056328654],[40.735996859148145,-73.99349416606128],[40.74222084134817,-73.9887788426131],[40.74410492554307,-73.98758098483086],[40.74530504643917,-73.98676861077547],[40.74648756533861,-73.98581022396684],[40.74487312696874,-73.97578043863177],[40.74456517584622,-73.97505146451294],[40.743875009939075,-73.97336267866194],[40.74347376823425,-73.97238668985665]]},{"d":"2026-03-28","n":"New York Running","km":5.88,"m":32.2,"hr":162.0,"pace":5.48,"w":[[40.74321694672108,-73.9718759804964],[40.742806904017925,-73.97211771458387],[40.73106779716909,-73.97399920038879],[40.72883980348706,-73.97603390738368],[40.731266448274255,-73.98246224038303],[40.72777580469847,-73.98506448604167],[40.72406513616443,-73.9880795404315],[40.73145906440914,-73.98270405828953],[40.734575875103474,-73.98042367771268],[40.738256787881255,-73.97773442789912],[40.741360019892454,-73.97549109533429],[40.743741150945425,-73.97341900505126],[40.743503188714385,-73.97247210144997]]},{"d":"2026-03-14","n":"New York Running","km":6.29,"m":36.4,"hr":166.0,"pace":5.79,"w":[[40.7438097987324,-73.97301332093775],[40.74567200616002,-73.97795462049544],[40.74650852009654,-73.9859068673104],[40.74515308253467,-73.98684069514275],[40.74335449375212,-73.98819101974368],[40.7415163423866,-73.98946766741574],[40.738971596583724,-73.9913503266871],[40.73693278245628,-73.99281062185764],[40.7351565733552,-73.99417100474238],[40.73332445695996,-73.99550506845117],[40.73217362165451,-73.99632398039103],[40.73023916222155,-73.99602332152426],[40.73001695796847,-73.99276971817017],[40.73143391869962,-73.98870994336903],[40.73339721187949,-73.98730798624456],[40.73608344420791,-73.9853011071682],[40.73829618282616,-73.98375590331852],[40.739597138017416,-73.98278578184545],[40.74147845618427,-73.98138717748225],[40.74614357203245,-73.97772076539695],[40.74547394178808,-73.97721474990249],[40.74489207006991,-73.97588160820305],[40.74389043264091,-73.97344985045493],[40.74350377544761,-73.97259204648435]]},{"d":"2026-03-11","n":"New York Running","km":6.16,"m":36.9,"hr":166.0,"pace":5.99,"w":[[40.74322876520455,-73.97181345149875],[40.73088171891868,-73.97420044988394],[40.73136057704687,-73.98236827924848],[40.72372416034341,-73.98833820596337],[40.73147725313902,-73.98266893811524],[40.73516755364835,-73.97998572327197],[40.73693672195077,-73.97873623296618],[40.738276317715645,-73.9777370262891],[40.74351718649268,-73.97246690467]]},{"d":"2026-02-27","n":"New York Running","km":4.58,"m":26.6,"hr":152.0,"pace":5.81,"w":[[40.74320772662759,-73.97174572572112],[40.73125991038978,-73.97386810742319],[40.730844251811504,-73.9737949334085],[40.730851627886295,-73.982726437971],[40.727346148341894,-73.98566102609038],[40.724374847486615,-73.98785540834069],[40.72665682062507,-73.9861801173538],[40.73016984388232,-73.98365565575659],[40.7314867246896,-73.98267480544746],[40.73400733061135,-73.9808299485594],[40.73572746478021,-73.97963502444327],[40.73701551184058,-73.97868216969073],[40.73830498382449,-73.97771213203669],[40.73858837597072,-73.97751180455089]]},{"d":"2026-02-21","n":"New York Running","km":10.39,"m":57.8,"hr":156.0,"pace":5.56,"w":[[40.74329917319119,-73.97167506627738],[40.731165865436196,-73.97378948517144],[40.723247062414885,-73.97927460260689],[40.72083877399564,-73.98107721470296],[40.72060734964907,-73.98146010003984],[40.72138016112149,-73.98397819139063],[40.72187318466604,-73.98567183874547],[40.72209723293781,-73.98643551394343],[40.72237668558955,-73.98729993961751],[40.72330263443291,-73.99027551524341],[40.72352835908532,-73.99114010855556],[40.72144419886172,-73.99715655483305],[40.72154209949076,-73.99770632386208],[40.720987636595964,-73.99810974486172],[40.71782564744353,-74.00097912177444],[40.71549916639924,-74.00291056372225],[40.7134841568768,-74.0034931898117],[40.71251571178436,-74.00455987080932],[40.71279156021774,-74.00423934683204],[40.713773500174284,-74.00319579988718],[40.7155186124146,-74.00186726823449],[40.71774207986891,-74.00029616430402],[40.71990209631622,-73.99857318028808],[40.721541261300445,-73.99743424728513],[40.72253795340657,-73.99696385487914],[40.72372357361019,-73.99633873254061],[40.72508353739977,-73.9952459000051],[40.727301724255085,-73.99345091544092],[40.73007839731872,-73.99075420573354],[40.7304766215384,-73.99048908613622],[40.73730611242354,-73.98148792795837],[40.74005529284477,-73.97954215295613],[40.74385573156178,-73.97335857152939],[40.7461616769433,-73.9717192389071],[40.743284756317735,-73.97224822081625],[40.74360854923725,-73.97276873700321]]},{"d":"2026-02-14","n":"New York Running","km":13.29,"m":76.6,"hr":156.0,"pace":5.76,"w":[[40.733908424153924,-73.97414043545723],[40.72882597334683,-73.97602720186114],[40.7264565769583,-73.98070522584021],[40.72303047403693,-73.98587107658386],[40.72228440083563,-73.98638874292374],[40.72241507470608,-73.98726188577712],[40.722764348611236,-73.98859645240009],[40.72428608313203,-73.9925018325448],[40.72534211911261,-73.99526232853532],[40.72627678513527,-73.99531127884984],[40.72814494371414,-73.99926041252911],[40.7296253554523,-74.002241268754],[40.72971831075847,-74.002291476354],[40.728417690843344,-74.0029585082084],[40.72883728891611,-74.00708869099617],[40.72915940545499,-74.01039677672088],[40.72920994833112,-74.01051663793623],[40.7292231079191,-74.01081117801368],[40.72420159354806,-74.01196989230812],[40.71315625682473,-74.01577787473798],[40.71859946474433,-74.01311544701457],[40.7257485575974,-74.01162849739194],[40.73346636258066,-74.0106476470828],[40.74081351980567,-74.00955498218536],[40.748625034466386,-74.00883053429425],[40.75010050088167,-74.00859952904284],[40.75483099557459,-74.00688903406262],[40.75681515969336,-74.00473983027041],[40.756623800843954,-74.00419794023037]]},{"d":"2026-02-06","n":"New York Running","km":5.39,"m":31.8,"hr":158.0,"pace":5.9,"w":[[40.743191968649626,-73.97192853502929],[40.74016719125211,-73.97257645614445],[40.7308910228312,-73.97419952787459],[40.72849974967539,-73.9758254494518],[40.72583916597068,-73.97773434408009],[40.72529015131295,-73.9781157206744],[40.72229923680425,-73.98030146956444],[40.72133481502533,-73.98278469219804],[40.72341721504927,-73.98858102969825],[40.72503852657974,-73.99211802519858],[40.72703409008682,-73.9914261829108],[40.72967707179487,-73.98952558636665],[40.73263227939606,-73.98755198344588],[40.735516492277384,-73.98546832613647],[40.736423414200544,-73.98479727096856],[40.73828008957207,-73.98349086754024],[40.739348446950316,-73.98305148817599],[40.741463704034686,-73.98128500208259],[40.74226627126336,-73.98061210289598]]},{"d":"2026-01-19","n":"New York Running","km":5.92,"m":33.0,"hr":157.0,"pace":5.57,"w":[[40.734532959759235,-73.99004023522139],[40.73462063446641,-73.99064507335424],[40.734738484025,-73.9908857177943],[40.73153743520379,-73.99498237296939],[40.73002768680453,-73.99841979146004],[40.72980020195246,-73.99847268126905],[40.73002156801522,-73.9973094407469],[40.72952996939421,-73.99636630900204],[40.72805450297892,-73.99300189688802],[40.729958871379495,-73.9907858055085],[40.73326134122908,-73.98700883612037],[40.73584841564298,-73.98513212800026],[40.73816081508994,-73.98350059054792],[40.73916010558605,-73.9829436969012],[40.7401386089623,-73.98198480717838],[40.74252862483263,-73.98032711818814],[40.74380929581821,-73.97936353459954]]},{"d":"2026-01-11","n":"New York Running","km":4.72,"m":26.0,"hr":161.0,"pace":5.51,"w":[[40.74111493304372,-73.97541934624314]]},{"d":"2025-11-08","n":"New York Running","km":2.26,"m":15.1,"hr":135.0,"pace":6.68,"w":[[40.76788832433522,-73.9787650667131],[40.779711585491896,-73.96503894589841],[40.781664149835706,-73.96104580722749]]},{"d":"2025-11-05","n":"New York Running","km":6.19,"m":32.2,"hr":157.0,"pace":5.2,"w":[[40.74321091175079,-73.9719468075782],[40.73279891163111,-73.9738776627928],[40.730558009818196,-73.97445232607424],[40.731259156018496,-73.98248143494129],[40.7236054725945,-73.98844046518207],[40.72655925527215,-73.98628832772374],[40.73134012520313,-73.98245126008987],[40.735534178093076,-73.97924920544028],[40.73817397467792,-73.97744743153453],[40.74497915804386,-73.97652223706245]]},{"d":"2025-10-24","n":"New York Running","km":5.78,"m":34.2,"hr":150.0,"pace":5.92,"w":[[40.742007521912456,-73.98094536736608],[40.7381300535053,-73.9836760237813],[40.73489480651915,-73.98574735969305],[40.73375101201236,-73.98670239374042],[40.72941396385431,-73.98992339149117],[40.72673552669585,-73.98869678378105],[40.726569816470146,-73.98625077679753],[40.727730793878436,-73.9853943977505],[40.729320757091045,-73.98381256498396],[40.73130584321916,-73.98246567696333],[40.73501944541931,-73.9797423966229],[40.73683940805495,-73.97841562516987],[40.74357971549034,-73.97261182777584]]},{"d":"2025-10-20","n":"New York Running","km":6.26,"m":33.4,"hr":155.0,"pace":5.34,"w":[[40.74109205044806,-73.97215937264264],[40.731168799102306,-73.97401504218578],[40.73057670146227,-73.98037816397846],[40.73004579171538,-73.98333647288382],[40.72741387411952,-73.98527738638222],[40.725873028859496,-73.98677171207964],[40.72521504946053,-73.98723137564957],[40.72466645389795,-73.9876360539347],[40.73130718432367,-73.98243868723512],[40.73817992582917,-73.97772587835789],[40.73968531563878,-73.97651989012957],[40.74363335967064,-73.9734112098813]]},{"d":"2025-10-04","n":"New York Running","km":9.03,"m":58.1,"hr":163.0,"pace":6.44,"w":[[40.76780718751252,-73.98000994697213],[40.76782965101302,-73.9787492249161],[40.77366949059069,-73.96923794411123],[40.799185344949365,-73.9557632803917],[40.796057218685746,-73.95695912651718],[40.78420948237181,-73.96736576221883],[40.77312131412327,-73.97624823264778]]},{"d":"2025-09-28","n":"New York Running","km":8.01,"m":52.3,"hr":157.0,"pace":6.53,"w":[[40.76974282041192,-73.97464510984719],[40.773519203066826,-73.96910140290856],[40.77500975690782,-73.96835926920176],[40.79104391857982,-73.95648839883506],[40.779306488111615,-73.97166492417455],[40.77442243695259,-73.97551070898771]]},{"d":"2025-09-20","n":"New York Running","km":17.22,"m":95.3,"hr":162.0,"pace":5.53,"w":[[40.74393963441253,-73.973627127707],[40.74535248801112,-73.97758682258427],[40.74799035675824,-73.98396578617394],[40.750058591365814,-73.98868018761277],[40.75227577239275,-73.99337254464626],[40.75353783555329,-73.99635683745146],[40.75469118542969,-73.99922696873546],[40.75589600019157,-74.0019859559834],[40.75637963600457,-74.00583232752979],[40.748265786096454,-74.00893681682646],[40.74118441902101,-74.00951005518436],[40.73716931976378,-74.01053549721837],[40.7287807110697,-74.01127536781132],[40.720130670815706,-74.01290019974113],[40.71383183822036,-74.0175343863666],[40.70229850709438,-74.01386990211904],[40.70666422136128,-74.01777771301568],[40.70810213685036,-74.01881363242865],[40.71849192492664,-74.01438941247761],[40.73364833369851,-74.01075585745275],[40.75014098547399,-74.00872031226754],[40.75243016704917,-74.00826701894403],[40.75973658822477,-74.00362813845277],[40.76021896675229,-74.00329546071589]]},{"d":"2025-09-16","n":"New York Running","km":7.19,"m":36.9,"hr":152.0,"pace":5.13,"w":[[40.74316858313978,-73.97190615534782],[40.732294488698244,-73.9737341646105],[40.730384420603514,-73.97457294166088],[40.73067736811936,-73.98136161267757],[40.723096523433924,-73.98865529336035],[40.72385014034808,-73.99106576107442],[40.72562165558338,-73.99515612982213],[40.73074626736343,-73.99074758403003],[40.74109414592385,-73.98593385703862],[40.744889387860894,-73.97581505589187],[40.744577245786786,-73.97509831935167],[40.74351282790303,-73.97263462655246]]},{"d":"2025-09-13","n":"New York Running","km":5.79,"m":35.0,"hr":148.0,"pace":6.04,"w":[[40.76633909717202,-73.97633892484009],[40.76975313015282,-73.97270268760622],[40.7723134662956,-73.97151941433549],[40.77429939061403,-73.97032306529582],[40.77483004890382,-73.9685813896358],[40.779311852529645,-73.96673611365259],[40.78016915358603,-73.96757137030363],[40.783796925097704,-73.95926364697516],[40.78461365774274,-73.95911428146064],[40.78722805716097,-73.9577642083168],[40.78871567733586,-73.96185742691159],[40.78185919672251,-73.96935788914561],[40.78168636187911,-73.97162879817188],[40.779703203588724,-73.97126292809844],[40.77729030512273,-73.97406097501516],[40.77254765667021,-73.97663639858365],[40.77200308442116,-73.97693739272654],[40.76785035431385,-73.97895106114447]]},{"d":"2025-09-11","n":"New York Running","km":9.01,"m":54.3,"hr":157.0,"pace":6.03,"w":[[40.7431467063725,-73.97188914008439],[40.731132505461574,-73.973981263116],[40.72935285978019,-73.97797339595854],[40.72431785054505,-73.98494227789342],[40.72286266833544,-73.98887640796602],[40.720324041321874,-73.99383313022554],[40.719511080533266,-73.99455615319312],[40.71728057228029,-73.99552275426686],[40.71643626317382,-73.9962766226381],[40.71685418486595,-73.9978483133018],[40.716915372759104,-73.99767304770648],[40.71961048990488,-73.99447124451399],[40.720925107598305,-73.9938282687217],[40.72391493245959,-73.99233218282461],[40.723205488175154,-73.9884838834405],[40.72235371917486,-73.98616092279553],[40.72140312753618,-73.98396084085107],[40.72215070948005,-73.98619931191206],[40.72352056391537,-73.98878957144916]]},{"d":"2025-09-06","n":"New York Running","km":15.02,"m":79.0,"hr":171.0,"pace":5.26,"w":[[40.743215437978506,-73.97173818200827],[40.74286490678787,-73.97213858552277],[40.73077283799648,-73.97427219897509],[40.728323897346854,-73.97570324130356],[40.7221912778914,-73.98011773824692],[40.71971744298935,-73.97900537587702],[40.71643056347966,-73.98071059025824],[40.71384063921869,-73.9798634313047],[40.71193124167621,-73.97921416908503],[40.71103806607425,-73.98087772540748],[40.710554430261254,-73.98668185807765],[40.709731830284,-73.99310088716447],[40.70796727202833,-73.99995979852974],[40.70598319172859,-74.00315003469586],[40.701479176059365,-74.0129413548857],[40.702337650582194,-74.01433006860316],[40.70356383919716,-74.01567192748189],[40.70461593568325,-74.01465084403753],[40.707412557676435,-74.01832203380764],[40.71557058021426,-74.01722844690084],[40.727929109707475,-74.01134552434087],[40.73198041878641,-74.01097118854523],[40.73333216831088,-74.0108032990247],[40.74420232325792,-74.00884620845318],[40.7491163816303,-74.0096602588892],[40.75414267368615,-74.00735297240317],[40.75671700760722,-74.00444420054555],[40.75568092055619,-74.00201705284417],[40.75450628064573,-73.9992537908256],[40.753575805574656,-73.99648457765579]]},{"d":"2025-09-01","n":"New York Running","km":9.03,"m":47.9,"hr":167.0,"pace":5.3,"w":[[40.767335621640086,-73.9765495620668],[40.769324731081724,-73.97484619170427],[40.77509776689112,-73.96827511489391],[40.798684023320675,-73.95847599953413],[40.77133026905358,-73.9775195159018]]},{"d":"2025-08-19","n":"New York Running","km":4.14,"m":20.1,"hr":164.0,"pace":4.86,"w":[[40.743294479325414,-73.97176366299391],[40.74343244545162,-73.97167230024934]]},{"d":"2025-08-14","n":"New York - Base","km":8.45,"m":44.9,"hr":170.0,"pace":5.31,"w":[[40.728906355798244,-73.9714671112597],[40.73066077195108,-73.97436272352934],[40.73163558728993,-73.98294956423342],[40.73455575853586,-73.98999740369618],[40.73613499291241,-73.99363548494875],[40.73775420896709,-73.99733156897128],[40.73987357318401,-73.99873000569642],[40.7428895495832,-73.9964061230421],[40.742985690012574,-73.99632448330522],[40.74413384310901,-73.99547799490392],[40.74606184847653,-73.99409305304289],[40.74914169497788,-73.99192088283598],[40.75033142231405,-73.99090139195323],[40.749686351045966,-73.98773420602083],[40.74700824916363,-73.98140218108892],[40.743721621111035,-73.97354817017913],[40.74324360117316,-73.9722961653024],[40.74323186650872,-73.97201897576451],[40.74743346311152,-73.96832062862813]]},{"d":"2025-08-06","n":"New York Running","km":6.1,"m":33.6,"hr":161.0,"pace":5.51,"w":[[40.74301762506366,-73.97207479923964],[40.741694709286094,-73.97223615087569],[40.731171732768416,-73.97394304163754],[40.73001444339752,-73.97886916995049],[40.73244284838438,-73.98492308333516],[40.73702129535377,-73.9846982806921],[40.74288250878453,-73.98030339740217],[40.744870360940695,-73.9757977053523],[40.744539024308324,-73.9750312641263],[40.743882386013865,-73.97337231785059],[40.74373411014676,-73.9711097907275]]},{"d":"2025-08-02","n":"New York Running","km":10.01,"m":55.2,"hr":174.0,"pace":5.51,"w":[[40.743248546496034,-73.97182183340192],[40.73143810965121,-73.98253935389221],[40.73245022445917,-73.9849261008203],[40.73447839356959,-73.99005507119],[40.73095061816275,-73.99965092539787],[40.7292521931231,-74.00129520334303],[40.72704481892288,-74.00351489894092],[40.732463551685214,-74.00328707881272],[40.733346082270145,-74.0028099808842],[40.73662986047566,-74.00091198273003],[40.73927007615566,-73.99901884607971],[40.741457249969244,-73.98960848338902],[40.740090664476156,-73.98641447536647],[40.743947345763445,-73.97797021083534],[40.743932174518704,-73.97347399033606],[40.744384629651904,-73.97275473922491]]},{"d":"2025-07-26","n":"New York - Base","km":8.19,"m":43.2,"hr":157.0,"pace":5.27,"w":[[40.74291452765465,-73.97211972624063],[40.73108313605189,-73.97401755675673],[40.73084601201117,-73.98080916143954],[40.731280110776424,-73.9824962709099],[40.729977395385504,-73.98349958471954],[40.72340472601354,-73.98892753757536],[40.72491338476539,-73.99228901602328],[40.72713727131486,-73.99172675795853],[40.730873588472605,-73.99059176445007],[40.73275960050523,-73.99010678753257],[40.73460110463202,-73.98998164571822],[40.738405315205455,-73.98782959207892],[40.741510977968574,-73.98582849651575],[40.74286071583629,-73.9845449756831],[40.746464347466826,-73.98169781081378],[40.74843141250312,-73.98041219450533],[40.75032714754343,-73.978923400864],[40.74902283959091,-73.97588211111724],[40.74758945032954,-73.97670580074191],[40.74693750590086,-73.97711961530149],[40.744600128382444,-73.97512530907989],[40.74383435770869,-73.97336410358548],[40.743475779891014,-73.97258860990405]]},{"d":"2025-07-22","n":"New York - Base","km":8.37,"m":44.8,"hr":166.0,"pace":5.35,"w":[[40.72864819318056,-73.98406192660332]]},{"d":"2025-07-17","n":"New York - Base","km":11.68,"m":62.3,"hr":173.0,"pace":5.33,"w":[[40.74253533035517,-73.97216096520424],[40.720877749845386,-73.98421020247042],[40.71876768954098,-73.98527227342129],[40.71770436130464,-73.98653693497181],[40.71818414144218,-73.98759003728628],[40.71905083023012,-73.99040727876127],[40.719825737178326,-73.99304875172675],[40.720857633277774,-73.99586599320173],[40.72077783755958,-74.00076144374907],[40.72238842025399,-74.00385109707713],[40.7234136108309,-74.00476656854153],[40.72366557084024,-74.0046745352447],[40.72420159354806,-74.00423850864172],[40.72764194570482,-74.00135764852166],[40.7307805493474,-73.99891884997487],[40.73301248252392,-73.99586976505816],[40.7340444624424,-73.9949557185173],[40.73528666049242,-73.9940235670656],[40.735846823081374,-73.99324237369001],[40.7350096385926,-73.99062554351985],[40.737841464579105,-73.98827752098441],[40.73967710137367,-73.98697279393673],[40.742713613435626,-73.98460398428142],[40.7446560356766,-73.98335055448115],[40.74589043855667,-73.98254731670022],[40.74688193388283,-73.98079684004188],[40.7463120482862,-73.97978564724326],[40.74471462517977,-73.97596626542509],[40.74367635883391,-73.9736500941217],[40.743278469890356,-73.97227931767702],[40.74316564947367,-73.9719919860363],[40.74398372322321,-73.97313904948533],[40.74447096325457,-73.97521633654833],[40.74382153339684,-73.9733995590359],[40.74348676018417,-73.97267737425864]]},{"d":"2025-07-12","n":"New York - Recovery","km":7.08,"m":38.9,"hr":175.0,"pace":5.49,"w":[[40.745823634788394,-73.97792352363467],[40.74315785430372,-73.97989109158516],[40.7379210088402,-73.98815623484552],[40.73756519705057,-73.98826913908124],[40.73176232166588,-73.99012506008148],[40.73040638118982,-73.99052848108113],[40.7297236751765,-73.99068413302302],[40.72638625279069,-73.99197159335017],[40.725669767707586,-73.99224610067904],[40.724852783605456,-73.99217627942562],[40.73265968821943,-73.98752700537443],[40.73142419569194,-73.98241731338203],[40.73024787940085,-73.97469003684819],[40.74317914433777,-73.97216976620257],[40.74371390976012,-73.97364682517946],[40.744789307937026,-73.97622987627983],[40.744949989020824,-73.97651569917798]]},{"d":"2025-07-08","n":"New York - Base","km":6.29,"m":34.1,"hr":165.0,"pace":5.42,"w":[[40.743168415501714,-73.97183449007571],[40.73114222846925,-73.97388420067728],[40.73089714162052,-73.97400774993002],[40.73033345863223,-73.98032217286527],[40.725533813238144,-73.98404700681567],[40.72886084206402,-73.98458529263735],[40.73085690848529,-73.9831112511456],[40.7352461759001,-73.97994096390903],[40.73688207194209,-73.97838737815619],[40.73813826777041,-73.97751163691282],[40.74447389692068,-73.97101683542132]]},{"d":"2025-07-03","n":"New York Running","km":6.61,"m":42.1,"hr":146.0,"pace":6.37,"w":[[40.74354752898216,-73.9737896528095],[40.74714286252856,-73.9814364630729],[40.74710506014526,-73.98169102147222],[40.748590836301446,-73.98462653160095],[40.75091999955475,-73.99019521661103],[40.75211249291897,-73.99347295984626],[40.7545196916908,-73.99931472726166],[40.755732050165534,-74.00209701620042],[40.75689763762057,-74.00492674671113],[40.75669362209737,-74.00561448186636],[40.756854051724076,-74.00487226434052],[40.755701288580894,-74.00207203812897],[40.754640474915504,-73.99916318245232],[40.753343123942614,-73.99639832787216],[40.75087289325893,-73.99063576944172],[40.74935392476618,-73.98699726909399],[40.74834633618593,-73.9846290461719],[40.74719759635627,-73.98136680945754],[40.74483331292868,-73.9763434510678],[40.74379865080118,-73.97324248217046],[40.743525652214885,-73.97252205759287]]},{"d":"2025-07-02","n":"New York Running","km":8.33,"m":44.6,"hr":161.0,"pace":5.35,"w":[[40.74322482571006,-73.97187505848706],[40.739378621801734,-73.97267946973443],[40.731806410476565,-73.97376224398613],[40.73079211637378,-73.97428535856307],[40.72636093944311,-73.98044161498547],[40.72356197051704,-73.98527822457254],[40.7224917691201,-73.986542718485],[40.723083950579166,-73.98856409825385],[40.723926331847906,-73.99088655598462],[40.72428063489497,-73.99093894287944],[40.724665615707636,-73.99181426502764],[40.727874459698796,-73.99328143335879],[40.73085347190499,-73.99866378866136],[40.728952372446656,-73.99519166909158],[40.728596560657024,-73.99417016655207],[40.73046874254942,-73.99043770506978],[40.73253387585282,-73.98756966926157],[40.73546343483031,-73.98551937192678],[40.73751817457378,-73.98400635458529],[40.73816793970764,-73.98354400880635],[40.73994230479002,-73.98264287039638],[40.74405304156244,-73.97929388098419],[40.74537914246321,-73.97730275988579],[40.743483658879995,-73.9726860076189]]},{"d":"2025-06-28","n":"New York Running","km":6.03,"m":42.9,"hr":149.0,"pace":7.11,"w":[[40.74339690618217,-73.97160675376654],[40.728561356663704,-73.97572268731892],[40.72281212545931,-73.98576554842293],[40.72234910912812,-73.98621238768101],[40.723162069916725,-73.98837005719543],[40.72683158330619,-73.98571978323162],[40.726973405107856,-73.98559506051242],[40.72741060517728,-73.98501494899392],[40.72772962041199,-73.98248797282577],[40.741393296048045,-73.97513134405017],[40.74319473467767,-73.97246413864195]]},{"d":"2025-06-23","n":"New York Running","km":4.09,"m":20.4,"hr":152.0,"pace":4.99,"w":[[40.743210073560476,-73.97191126830876],[40.74322985485196,-73.97247277200222],[40.743249552324414,-73.97263186052442]]},{"d":"2025-06-21","n":"New York - Recovery","km":8.01,"m":47.8,"hr":148.0,"pace":5.97,"w":[[40.74321426451206,-73.97191738709807],[40.728087862953544,-73.97156878374517],[40.72949384339154,-73.97163483314216],[40.73085422627628,-73.97383022122085],[40.73034360073507,-73.98030180484056],[40.72901071049273,-73.98130436427891],[40.72661985643208,-73.9831080660224],[40.72720457799733,-73.9842582307756],[40.727094607427716,-73.98551744408906],[40.72689754888415,-73.98568499833345],[40.723900934681296,-73.98786052130163],[40.723146479576826,-73.98876752704382],[40.724517088383436,-73.99229421280324],[40.72491958737373,-73.99213713593781],[40.726336129009724,-73.99179465137422],[40.72992945089936,-73.99080298841],[40.73076345026493,-73.98887967690825],[40.73262414894998,-73.98755542002618],[40.73696128092706,-73.98438806645572],[40.73886145837605,-73.98319817148149],[40.7407168764621,-73.9817832224071],[40.74508745223284,-73.97847932763398],[40.74491444975138,-73.97583207115531],[40.74382631108165,-73.97330802865326],[40.74321694672108,-73.97235224023461]]},{"d":"2025-06-12","n":"New York - Base","km":8.72,"m":49.1,"hr":163.0,"pace":5.63,"w":[[40.74318157508969,-73.97189534269273],[40.72684155777097,-73.97662742994726],[40.72104061022401,-73.98123973980546],[40.72254750877619,-73.98600535467267],[40.72238179855049,-73.98624390363693],[40.7239387370646,-73.98803595453501],[40.726116774603724,-73.98340847343206],[40.7274579629302,-73.98239359259605],[40.73038022965193,-73.98045795969665],[40.7313696295023,-73.98242142051458],[40.73264912702143,-73.98137074895203],[40.73503453284502,-73.97972923703492],[40.73834119364619,-73.97769176401198],[40.743306716904044,-73.97229448892176],[40.74389026500285,-73.97140433080494],[40.74333186261356,-73.97194898687303],[40.74365993030369,-73.97292606532574]]},{"d":"2025-06-07","n":"New York Running","km":9.64,"m":57.1,"hr":167.0,"pace":5.92,"w":[[40.74882661923766,-74.00871813297272]]},{"d":"2025-05-31","n":"New York - Base","km":10.02,"m":54.0,"hr":164.0,"pace":5.39,"w":[[40.74391566216946,-73.9746601972729],[40.74490254744887,-73.97594086825848],[40.74588306248188,-73.9782211650163],[40.74783084914088,-73.98311896249652],[40.74994551949203,-73.98788482882082],[40.751009434461594,-73.99067767895758],[40.75224802829325,-73.99341495707631],[40.7534992787987,-73.99633697234094],[40.75483912602067,-73.99924566037953],[40.7556870393455,-74.00204739533365],[40.75691498816013,-74.0049041993916],[40.750961573794484,-74.01042217388749],[40.744485380128026,-74.00884059257805],[40.720402328297496,-74.0161238797009],[40.70808872580528,-74.01876761578023]]},{"d":"2025-05-29","n":"New York - Base","km":5.45,"m":30.1,"hr":157.0,"pace":5.52,"w":[[40.74306548573077,-73.97204152308404],[40.73713998310268,-73.97265088744462],[40.73122847825289,-73.97343266755342],[40.731858713552356,-73.97364104166627],[40.742580592632294,-73.97236615419388],[40.74259450659156,-73.97232801653445],[40.743761183694005,-73.97326813079417]]},{"d":"2025-05-25","n":"New York - Base","km":14.32,"m":76.8,"hr":156.0,"pace":5.36,"w":[[40.74308233335614,-73.97205283865333],[40.74047053232789,-73.97252415306866],[40.71907966397703,-73.97537358105183],[40.715373773127794,-73.97666917182505],[40.713275196030736,-73.97771213203669],[40.71190098300576,-73.98082391358912],[40.71102624759078,-73.98396444506943],[40.71077009662986,-73.98500472307205],[40.7098787650466,-73.99212699383497],[40.70945514366031,-73.9939960744232],[40.70925733074546,-73.99433302693069],[40.70930175483227,-73.99643621407449],[40.70860999636352,-73.9991398807615],[40.70731859654188,-74.00145655497909],[40.70664217695594,-74.00236339308321],[40.7059377618134,-74.00310552679002],[40.70148043334484,-74.0127629879862],[40.70199089124799,-74.01351023465395],[40.70531850680709,-74.01706282049417],[40.708831027150154,-74.01859025470912],[40.70901459082961,-74.01857290416956],[40.71385866031051,-74.01755131781101],[40.7199530582875,-74.01284504681826],[40.738941337913275,-74.01039560325444],[40.74341987259686,-74.0089749544859],[40.74854456819594,-74.00855309329927],[40.752086928114295,-74.00840179994702],[40.757025545462966,-74.00534760206938]]},{"d":"2025-05-20","n":"New York Running","km":5.62,"m":28.5,"hr":164.0,"pace":5.07,"w":[[40.743037573993206,-73.97207672707736],[40.73460294865072,-73.97458291612566],[40.72225187905133,-73.97266656160355],[40.72565007023513,-73.97217211313546],[40.74343261308968,-73.9723234064877]]},{"d":"2025-05-13","n":"New York - Base","km":9.65,"m":53.1,"hr":154.0,"pace":5.5,"w":[[40.74302458204329,-73.97213095799088],[40.719755413010716,-73.97327525541186],[40.743404952809215,-73.97163617424667],[40.74729801155627,-73.96848583593965],[40.744103165343404,-73.97210505791008],[40.744555704295635,-73.97306730039418],[40.746359238401055,-73.97970023564994],[40.74444984085858,-73.98105131462216],[40.74277228675783,-73.98050766438246],[40.74401901103556,-73.97961909882724],[40.74463265016675,-73.97912615910172],[40.74467087164521,-73.97594044916332],[40.743922367691994,-73.97339830175042],[40.74385522864759,-73.97310485132039]]},{"d":"2025-04-30","n":"New York Running","km":4.01,"m":24.8,"hr":147.0,"pace":6.18,"w":[[40.74352791532874,-73.97149217315018],[40.72843663394451,-73.9715157262981]]},{"d":"2025-04-24","n":"New York - Base","km":7.76,"m":43.0,"hr":159.0,"pace":5.54,"w":[[40.76641428284347,-73.97674980573356],[40.78998469747603,-73.95759061910212],[40.790856666862965,-73.96042261272669],[40.79119554720819,-73.96092527545989],[40.77846494503319,-73.96664349362254],[40.77231019735336,-73.96906938403845],[40.76625561341643,-73.97683689370751]]},{"d":"2025-04-23","n":"New York Running","km":4.01,"m":25.0,"hr":159.0,"pace":6.23,"w":[[40.764838736504316,-73.97660178132355],[40.765654211863875,-73.97614111192524],[40.76768958941102,-73.97606969811022],[40.76916329562664,-73.97466740570962],[40.781639674678445,-73.96275420673192],[40.777935376390815,-73.96667710505426],[40.77332558110356,-73.96878121420741],[40.77087580226362,-73.97090082988143]]},{"d":"2024-12-15","n":"New York Running","km":21.01,"m":121.2,"hr":157.0,"pace":5.77,"w":[[40.754359010607004,-73.99599549360573],[40.75379046611488,-73.99782668799162],[40.75448180548847,-73.9993679523468],[40.755098797380924,-74.00077250786126],[40.755693996325135,-74.0020689368248],[40.75687098316848,-74.00494971312582],[40.748632326722145,-74.00885408744216],[40.732254926115274,-74.01091637089849],[40.701336013153195,-74.01417248882353],[40.70694182999432,-74.0186914242804],[40.76379125006497,-73.99942897260189],[40.767837865278125,-73.99632481858134],[40.77122583054006,-73.99500542320311],[40.76916773803532,-73.9954187348485],[40.76428058557212,-73.99903234094381],[40.762573946267366,-74.00125597603619],[40.76099353842437,-73.99849531240761],[40.760651053860784,-73.99757967330515],[40.757845882326365,-73.9932534378022],[40.75716602616012,-73.99366817437112],[40.75518571771681,-73.99513735435903],[40.75489662587643,-73.99532049894333],[40.75472664088011,-73.99529334157705],[40.754207549616694,-73.99432053789496]]},{"d":"2024-12-07","n":"New York Running","km":6.04,"m":35.0,"hr":165.0,"pace":5.79,"w":[[40.75344504788518,-73.99609456770122],[40.755863478407264,-74.00189233012497],[40.76244285330176,-74.00161078199744],[40.75701548717916,-74.00533150881529],[40.731253204867244,-74.01105643250048]]},{"d":"2024-11-29","n":"New York Running","km":3.01,"m":17.5,"hr":148.0,"pace":5.81,"w":[[40.755373891443014,-74.00189383886755],[40.75451608747244,-73.99916594848037],[40.75567723251879,-74.00204219855368],[40.750932823866606,-74.01035713031888],[40.74242762289941,-74.00988103821874]]},{"d":"2024-11-23","n":"New York Running","km":16.16,"m":88.5,"hr":159.0,"pace":5.48,"w":[[40.75341084972024,-73.9963307697326],[40.75385542586446,-73.99769894778728],[40.73126032948494,-74.01101510971785],[40.711153987795115,-74.01493976823986],[40.713964104652405,-74.01429947465658],[40.75694063678384,-74.00507099926472],[40.754645420238376,-73.99926711805165],[40.75461692176759,-73.99903661571443],[40.75415273196995,-73.99239856749773],[40.754988407716155,-73.99537992663682]]}];
 
-    <!-- Charts -->
-    <h2 style="margin-top:1.5rem">Stats &amp; trends</h2>
-    <div class="charts-grid">
-        <div class="chart-card full">
-            <div class="chart-title">Monthly distance (km)</div>
-            <div class="chart-wrap" style="height:180px"><canvas id="chart-monthly"></canvas></div>
-        </div>
-        <div class="chart-card">
-            <div class="chart-title">Pace over time (min/km) — hover for details</div>
-            <div class="chart-wrap" style="height:200px"><canvas id="chart-pace"></canvas></div>
-        </div>
-        <div class="chart-card">
-            <div class="chart-title">Heart rate vs pace</div>
-            <div class="chart-wrap" style="height:200px"><canvas id="chart-hrpace"></canvas></div>
-        </div>
-        <div class="chart-card">
-            <div class="chart-title">Run distance distribution</div>
-            <div class="chart-wrap" style="height:200px"><canvas id="chart-dist"></canvas></div>
-        </div>
-        <div class="chart-card">
-            <div class="chart-title">Pace by city</div>
-            <div class="chart-wrap" style="height:200px"><canvas id="chart-citypace"></canvas></div>
-        </div>
-    </div>
+const SF_RUNS = [{"d":"2025-04-18","n":"San Francisco - Base","km":9.56,"m":53.1,"hr":133.0,"pace":5.56,"w":[[37.76659609749913,-122.39642757922411],[37.76664471253753,-122.39524430595338],[37.76683481410146,-122.39288664422929],[37.76697169058025,-122.3908315692097],[37.76703983545303,-122.38893449306488],[37.7751596365124,-122.38740974105895],[37.790530789643526,-122.38888763822615],[37.796382531523705,-122.39474440924823],[37.76724016293883,-122.38620199263096],[37.76704888790846,-122.3890598025173],[37.766919638961554,-122.39096291363239],[37.76719506829977,-122.39623722620308]]},{"d":"2025-04-17","n":"San Francisco - Base","km":5.42,"m":30.1,"hr":146.0,"pace":5.55,"w":[[37.76672149077058,-122.39796188659966],[37.77302987873554,-122.40340299904346],[37.777211191132665,-122.40396819077432],[37.77869068086147,-122.4016154743731],[37.77775928378105,-122.40045776590705],[37.77648934163153,-122.39884399808943],[37.77188390493393,-122.40179266780615],[37.76695551350713,-122.40364423021674],[37.76599092409015,-122.40355253219604],[37.7664387691766,-122.3950672801584],[37.76674537919462,-122.39638617262244]]},{"d":"2025-04-15","n":"San Francisco - Threshold","km":10.5,"m":53.6,"hr":147.0,"pace":5.1,"w":[[37.766531305387616,-122.39699025638402],[37.76663457043469,-122.39512704312801],[37.76688812300563,-122.39295730367303],[37.76698149740696,-122.39070584066212],[37.76701242662966,-122.38906726241112],[37.76702583767474,-122.38891177810729],[37.7672487962991,-122.38611867651343],[37.778919422999024,-122.3875555023551],[37.79842738062143,-122.39662187173963],[37.779831206426024,-122.38768734969199],[37.773893382400274,-122.38963245414197],[37.76704830117524,-122.38915904425085],[37.766949897632,-122.39086735993624],[37.76679868809879,-122.39282914437354],[37.76603844948113,-122.39584897644818],[37.76470555923879,-122.40269967354834]]},{"d":"2025-04-11","n":"San Francisco - Base","km":6.17,"m":33.3,"hr":133.0,"pace":5.4,"w":[[37.7666789945215,-122.39636387676],[37.76668435893953,-122.39523651078343],[37.766836658120155,-122.39290927536786],[37.7669794857502,-122.39084229804575],[37.76702684350312,-122.38916507922113],[37.76725499890745,-122.38616779446602],[37.781382696703076,-122.38793402910233],[37.767232870683074,-122.38662888295949],[37.76705835945904,-122.38905158825219],[37.766980826854706,-122.39077432081103],[37.76683850213885,-122.3928639292717],[37.7666996140033,-122.39635499194264]]},{"d":"2025-04-07","n":"San Francisco Running","km":11.19,"m":60.1,"hr":144.0,"pace":5.37,"w":[[37.766573801636696,-122.39661474712193],[37.7666805870831,-122.39530239254236],[37.766791312024,-122.39291698671877],[37.76694444939494,-122.39077876321971],[37.7670918032527,-122.38907363265753],[37.76720269583166,-122.38615463487804],[37.77769776061177,-122.39111672155559],[37.78852416202426,-122.38771383650601],[37.79904479160905,-122.39711791276932],[37.80349466018379,-122.40119009278715],[37.77761746197939,-122.38927722908556],[37.77083189226687,-122.38611968234181],[37.76922985911369,-122.38600887358189],[37.76702935807407,-122.38909299485385],[37.76696288958192,-122.390858810395],[37.76680271141231,-122.39283584989607],[37.7666996140033,-122.39471691660583]]},{"d":"2025-04-01","n":"San Francisco - Base","km":7.51,"m":41.0,"hr":152.0,"pace":5.46,"w":[[37.76656181551516,-122.396918842569],[37.76685434393585,-122.39286887459457],[37.76700463145971,-122.39080927334726],[37.767050145193934,-122.3891716171056],[37.78961137868464,-122.38823083229363],[37.76707545854151,-122.38910146057606],[37.766765328124166,-122.39626321010292]]},{"d":"2025-03-27","n":"San Francisco - Base","km":8.99,"m":49.4,"hr":149.0,"pace":5.5,"w":[[37.76655385270715,-122.3975106049329],[37.76666642166674,-122.39527121186256],[37.76684361509979,-122.39292126148939],[37.76698409579694,-122.39082855172455],[37.767033129930496,-122.38929214887321],[37.76724108494818,-122.38614851608872],[37.79320428147912,-122.39152969792485],[37.79549555853009,-122.39389138296247],[37.79320880770683,-122.39667987450957],[37.79161859303713,-122.3982135951519],[37.78863321058452,-122.40204395726323],[37.7839061524719,-122.40801824256778],[37.780366223305464,-122.41225973702967],[37.779286969453096,-122.41086415015161],[37.773113111034036,-122.40315590053797],[37.77192053385079,-122.40164414048195],[37.769402442499995,-122.3985196184367],[37.76924276724458,-122.39851710386574],[37.767212335020304,-122.39613731391728]]},{"d":"2025-03-24","n":"San Francisco - Threshold","km":8.24,"m":43.0,"hr":146.0,"pace":5.22,"w":[[37.76658268645406,-122.39697047509253],[37.766884015873075,-122.39291807636619],[37.76699574664235,-122.39079795777798],[37.76706799864769,-122.38917983137071],[37.76727670803666,-122.38615832291543],[37.7806390542537,-122.38768726587296],[37.78701634146273,-122.38758073188365],[37.79119220562279,-122.389154182747],[37.794611267745495,-122.3930262029171],[37.78974582441151,-122.38834138959646],[37.781759379431605,-122.38856317475438],[37.78057208284736,-122.39044608548284],[37.77875396423042,-122.39276837557554],[37.77175582945347,-122.40157700143754],[37.765372758731246,-122.40352487191558]]},{"d":"2025-03-20","n":"San Francisco - Base","km":7.06,"m":39.0,"hr":147.0,"pace":5.52,"w":[[37.766766333952546,-122.39644744433463],[37.76666357181966,-122.39525453187525],[37.7668515779078,-122.39287859760225],[37.76700211688876,-122.39082167856395],[37.76711133308709,-122.38891085609794],[37.767266565933824,-122.38613879308105],[37.77601224370301,-122.38797526806593],[37.77665890753269,-122.3899956420064],[37.78445181436837,-122.3877899441868],[37.7644616458565,-122.38785004243255],[37.76704754680395,-122.38908126018941],[37.766821067780256,-122.39650611765683]]}];
 
-    <script>
-        // ── DATA ──────────────────────────────────────────────────────────────────
-        const NY_RUNS = [{ "d": "2026-04-03", "n": "New York Running", "km": 7.75, "m": 43.6, "hr": 151.0, "pace": 5.63, "w": [[40.743236895650625, -73.97167372517288], [40.73113778606057, -73.97405586205423], [40.73140793479979, -73.98269886150956], [40.723240692168474, -73.98905276320875], [40.72385776787996, -73.9910429622978], [40.725644789636135, -73.99706837721169], [40.73213799856603, -73.9966257289052], [40.73467327281833, -73.99450468830764], [40.739146610721946, -73.99127773940563], [40.740294428542256, -73.99043845944107], [40.742553267627954, -73.98768701590598], [40.744769694283605, -73.98519172333181], [40.744937835261226, -73.97577624768019], [40.74386126361787, -73.97336091846228], [40.74357233941555, -73.97257100790739]] }, { "d": "2026-03-30", "n": "New York Running", "km": 5.02, "m": 27.2, "hr": 168.0, "pace": 5.42, "w": [[40.7231184002012, -73.98886794224381], [40.72431206703186, -73.99251147173345], [40.72524916380644, -73.99528034962714], [40.72560824453831, -73.99670493789017], [40.727976048365235, -74.00127030909061], [40.73142905719578, -73.99685639888048], [40.73288801126182, -73.99582056328654], [40.735996859148145, -73.99349416606128], [40.74222084134817, -73.9887788426131], [40.74410492554307, -73.98758098483086], [40.74530504643917, -73.98676861077547], [40.74648756533861, -73.98581022396684], [40.74487312696874, -73.97578043863177], [40.74456517584622, -73.97505146451294], [40.743875009939075, -73.97336267866194], [40.74347376823425, -73.97238668985665]] }, { "d": "2026-03-28", "n": "New York Running", "km": 5.88, "m": 32.2, "hr": 162.0, "pace": 5.48, "w": [[40.74321694672108, -73.9718759804964], [40.742806904017925, -73.97211771458387], [40.73106779716909, -73.97399920038879], [40.72883980348706, -73.97603390738368], [40.731266448274255, -73.98246224038303], [40.72777580469847, -73.98506448604167], [40.72406513616443, -73.9880795404315], [40.73145906440914, -73.98270405828953], [40.734575875103474, -73.98042367771268], [40.738256787881255, -73.97773442789912], [40.741360019892454, -73.97549109533429], [40.743741150945425, -73.97341900505126], [40.743503188714385, -73.97247210144997]] }, { "d": "2026-03-14", "n": "New York Running", "km": 6.29, "m": 36.4, "hr": 166.0, "pace": 5.79, "w": [[40.7438097987324, -73.97301332093775], [40.74567200616002, -73.97795462049544], [40.74650852009654, -73.9859068673104], [40.74515308253467, -73.98684069514275], [40.74335449375212, -73.98819101974368], [40.7415163423866, -73.98946766741574], [40.738971596583724, -73.9913503266871], [40.73693278245628, -73.99281062185764], [40.7351565733552, -73.99417100474238], [40.73332445695996, -73.99550506845117], [40.73217362165451, -73.99632398039103], [40.73023916222155, -73.99602332152426], [40.73001695796847, -73.99276971817017], [40.73143391869962, -73.98870994336903], [40.73339721187949, -73.98730798624456], [40.73608344420791, -73.9853011071682], [40.73829618282616, -73.98375590331852], [40.739597138017416, -73.98278578184545], [40.74147845618427, -73.98138717748225], [40.74614357203245, -73.97772076539695], [40.74547394178808, -73.97721474990249], [40.74489207006991, -73.97588160820305], [40.74389043264091, -73.97344985045493], [40.74350377544761, -73.97259204648435]] }, { "d": "2026-03-11", "n": "New York Running", "km": 6.16, "m": 36.9, "hr": 166.0, "pace": 5.99, "w": [[40.74322876520455, -73.97181345149875], [40.73088171891868, -73.97420044988394], [40.73136057704687, -73.98236827924848], [40.72372416034341, -73.98833820596337], [40.73147725313902, -73.98266893811524], [40.73516755364835, -73.97998572327197], [40.73693672195077, -73.97873623296618], [40.738276317715645, -73.9777370262891], [40.74351718649268, -73.97246690467]] }, { "d": "2026-02-27", "n": "New York Running", "km": 4.58, "m": 26.6, "hr": 152.0, "pace": 5.81, "w": [[40.74320772662759, -73.97174572572112], [40.73125991038978, -73.97386810742319], [40.730844251811504, -73.9737949334085], [40.730851627886295, -73.982726437971], [40.727346148341894, -73.98566102609038], [40.724374847486615, -73.98785540834069], [40.72665682062507, -73.9861801173538], [40.73016984388232, -73.98365565575659], [40.7314867246896, -73.98267480544746], [40.73400733061135, -73.9808299485594], [40.73572746478021, -73.97963502444327], [40.73701551184058, -73.97868216969073], [40.73830498382449, -73.97771213203669], [40.73858837597072, -73.97751180455089]] }, { "d": "2026-02-21", "n": "New York Running", "km": 10.39, "m": 57.8, "hr": 156.0, "pace": 5.56, "w": [[40.74329917319119, -73.97167506627738], [40.731165865436196, -73.97378948517144], [40.723247062414885, -73.97927460260689], [40.72083877399564, -73.98107721470296], [40.72060734964907, -73.98146010003984], [40.72138016112149, -73.98397819139063], [40.72187318466604, -73.98567183874547], [40.72209723293781, -73.98643551394343], [40.72237668558955, -73.98729993961751], [40.72330263443291, -73.99027551524341], [40.72352835908532, -73.99114010855556], [40.72144419886172, -73.99715655483305], [40.72154209949076, -73.99770632386208], [40.720987636595964, -73.99810974486172], [40.71782564744353, -74.00097912177444], [40.71549916639924, -74.00291056372225], [40.7134841568768, -74.0034931898117], [40.71251571178436, -74.00455987080932], [40.71279156021774, -74.00423934683204], [40.713773500174284, -74.00319579988718], [40.7155186124146, -74.00186726823449], [40.71774207986891, -74.00029616430402], [40.71990209631622, -73.99857318028808], [40.721541261300445, -73.99743424728513], [40.72253795340657, -73.99696385487914], [40.72372357361019, -73.99633873254061], [40.72508353739977, -73.9952459000051], [40.727301724255085, -73.99345091544092], [40.73007839731872, -73.99075420573354], [40.7304766215384, -73.99048908613622], [40.73730611242354, -73.98148792795837], [40.74005529284477, -73.97954215295613], [40.74385573156178, -73.97335857152939], [40.7461616769433, -73.9717192389071], [40.743284756317735, -73.97224822081625], [40.74360854923725, -73.97276873700321]] }, { "d": "2026-02-14", "n": "New York Running", "km": 13.29, "m": 76.6, "hr": 156.0, "pace": 5.76, "w": [[40.733908424153924, -73.97414043545723], [40.72882597334683, -73.97602720186114], [40.7264565769583, -73.98070522584021], [40.72303047403693, -73.98587107658386], [40.72228440083563, -73.98638874292374], [40.72241507470608, -73.98726188577712], [40.722764348611236, -73.98859645240009], [40.72428608313203, -73.9925018325448], [40.72534211911261, -73.99526232853532], [40.72627678513527, -73.99531127884984], [40.72814494371414, -73.99926041252911], [40.7296253554523, -74.002241268754], [40.72971831075847, -74.002291476354], [40.728417690843344, -74.0029585082084], [40.72883728891611, -74.00708869099617], [40.72915940545499, -74.01039677672088], [40.72920994833112, -74.01051663793623], [40.7292231079191, -74.01081117801368], [40.72420159354806, -74.01196989230812], [40.71315625682473, -74.01577787473798], [40.71859946474433, -74.01311544701457], [40.7257485575974, -74.01162849739194], [40.73346636258066, -74.0106476470828], [40.74081351980567, -74.00955498218536], [40.748625034466386, -74.00883053429425], [40.75010050088167, -74.00859952904284], [40.75483099557459, -74.00688903406262], [40.75681515969336, -74.00473983027041], [40.756623800843954, -74.00419794023037]] }, { "d": "2026-02-06", "n": "New York Running", "km": 5.39, "m": 31.8, "hr": 158.0, "pace": 5.9, "w": [[40.743191968649626, -73.97192853502929], [40.74016719125211, -73.97257645614445], [40.7308910228312, -73.97419952787459], [40.72849974967539, -73.9758254494518], [40.72583916597068, -73.97773434408009], [40.72529015131295, -73.9781157206744], [40.72229923680425, -73.98030146956444], [40.72133481502533, -73.98278469219804], [40.72341721504927, -73.98858102969825], [40.72503852657974, -73.99211802519858], [40.72703409008682, -73.9914261829108], [40.72967707179487, -73.98952558636665], [40.73263227939606, -73.98755198344588], [40.735516492277384, -73.98546832613647], [40.736423414200544, -73.98479727096856], [40.73828008957207, -73.98349086754024], [40.739348446950316, -73.98305148817599], [40.741463704034686, -73.98128500208259], [40.74226627126336, -73.98061210289598]] }, { "d": "2026-01-19", "n": "New York Running", "km": 5.92, "m": 33.0, "hr": 157.0, "pace": 5.57, "w": [[40.734532959759235, -73.99004023522139], [40.73462063446641, -73.99064507335424], [40.734738484025, -73.9908857177943], [40.73153743520379, -73.99498237296939], [40.73002768680453, -73.99841979146004], [40.72980020195246, -73.99847268126905], [40.73002156801522, -73.9973094407469], [40.72952996939421, -73.99636630900204], [40.72805450297892, -73.99300189688802], [40.729958871379495, -73.9907858055085], [40.73326134122908, -73.98700883612037], [40.73584841564298, -73.98513212800026], [40.73816081508994, -73.98350059054792], [40.73916010558605, -73.9829436969012], [40.7401386089623, -73.98198480717838], [40.74252862483263, -73.98032711818814], [40.74380929581821, -73.97936353459954]] }, { "d": "2026-01-11", "n": "New York Running", "km": 4.72, "m": 26.0, "hr": 161.0, "pace": 5.51, "w": [[40.74111493304372, -73.97541934624314]] }, { "d": "2025-11-08", "n": "New York Running", "km": 2.26, "m": 15.1, "hr": 135.0, "pace": 6.68, "w": [[40.76788832433522, -73.9787650667131], [40.779711585491896, -73.96503894589841], [40.781664149835706, -73.96104580722749]] }, { "d": "2025-11-05", "n": "New York Running", "km": 6.19, "m": 32.2, "hr": 157.0, "pace": 5.2, "w": [[40.74321091175079, -73.9719468075782], [40.73279891163111, -73.9738776627928], [40.730558009818196, -73.97445232607424], [40.731259156018496, -73.98248143494129], [40.7236054725945, -73.98844046518207], [40.72655925527215, -73.98628832772374], [40.73134012520313, -73.98245126008987], [40.735534178093076, -73.97924920544028], [40.73817397467792, -73.97744743153453], [40.74497915804386, -73.97652223706245]] }, { "d": "2025-10-24", "n": "New York Running", "km": 5.78, "m": 34.2, "hr": 150.0, "pace": 5.92, "w": [[40.742007521912456, -73.98094536736608], [40.7381300535053, -73.9836760237813], [40.73489480651915, -73.98574735969305], [40.73375101201236, -73.98670239374042], [40.72941396385431, -73.98992339149117], [40.72673552669585, -73.98869678378105], [40.726569816470146, -73.98625077679753], [40.727730793878436, -73.9853943977505], [40.729320757091045, -73.98381256498396], [40.73130584321916, -73.98246567696333], [40.73501944541931, -73.9797423966229], [40.73683940805495, -73.97841562516987], [40.74357971549034, -73.97261182777584]] }, { "d": "2025-10-20", "n": "New York Running", "km": 6.26, "m": 33.4, "hr": 155.0, "pace": 5.34, "w": [[40.74109205044806, -73.97215937264264], [40.731168799102306, -73.97401504218578], [40.73057670146227, -73.98037816397846], [40.73004579171538, -73.98333647288382], [40.72741387411952, -73.98527738638222], [40.725873028859496, -73.98677171207964], [40.72521504946053, -73.98723137564957], [40.72466645389795, -73.9876360539347], [40.73130718432367, -73.98243868723512], [40.73817992582917, -73.97772587835789], [40.73968531563878, -73.97651989012957], [40.74363335967064, -73.9734112098813]] }, { "d": "2025-10-04", "n": "New York Running", "km": 9.03, "m": 58.1, "hr": 163.0, "pace": 6.44, "w": [[40.76780718751252, -73.98000994697213], [40.76782965101302, -73.9787492249161], [40.77366949059069, -73.96923794411123], [40.799185344949365, -73.9557632803917], [40.796057218685746, -73.95695912651718], [40.78420948237181, -73.96736576221883], [40.77312131412327, -73.97624823264778]] }, { "d": "2025-09-28", "n": "New York Running", "km": 8.01, "m": 52.3, "hr": 157.0, "pace": 6.53, "w": [[40.76974282041192, -73.97464510984719], [40.773519203066826, -73.96910140290856], [40.77500975690782, -73.96835926920176], [40.79104391857982, -73.95648839883506], [40.779306488111615, -73.97166492417455], [40.77442243695259, -73.97551070898771]] }, { "d": "2025-09-20", "n": "New York Running", "km": 17.22, "m": 95.3, "hr": 162.0, "pace": 5.53, "w": [[40.74393963441253, -73.973627127707], [40.74535248801112, -73.97758682258427], [40.74799035675824, -73.98396578617394], [40.750058591365814, -73.98868018761277], [40.75227577239275, -73.99337254464626], [40.75353783555329, -73.99635683745146], [40.75469118542969, -73.99922696873546], [40.75589600019157, -74.0019859559834], [40.75637963600457, -74.00583232752979], [40.748265786096454, -74.00893681682646], [40.74118441902101, -74.00951005518436], [40.73716931976378, -74.01053549721837], [40.7287807110697, -74.01127536781132], [40.720130670815706, -74.01290019974113], [40.71383183822036, -74.0175343863666], [40.70229850709438, -74.01386990211904], [40.70666422136128, -74.01777771301568], [40.70810213685036, -74.01881363242865], [40.71849192492664, -74.01438941247761], [40.73364833369851, -74.01075585745275], [40.75014098547399, -74.00872031226754], [40.75243016704917, -74.00826701894403], [40.75973658822477, -74.00362813845277], [40.76021896675229, -74.00329546071589]] }, { "d": "2025-09-16", "n": "New York Running", "km": 7.19, "m": 36.9, "hr": 152.0, "pace": 5.13, "w": [[40.74316858313978, -73.97190615534782], [40.732294488698244, -73.9737341646105], [40.730384420603514, -73.97457294166088], [40.73067736811936, -73.98136161267757], [40.723096523433924, -73.98865529336035], [40.72385014034808, -73.99106576107442], [40.72562165558338, -73.99515612982213], [40.73074626736343, -73.99074758403003], [40.74109414592385, -73.98593385703862], [40.744889387860894, -73.97581505589187], [40.744577245786786, -73.97509831935167], [40.74351282790303, -73.97263462655246]] }, { "d": "2025-09-13", "n": "New York Running", "km": 5.79, "m": 35.0, "hr": 148.0, "pace": 6.04, "w": [[40.76633909717202, -73.97633892484009], [40.76975313015282, -73.97270268760622], [40.7723134662956, -73.97151941433549], [40.77429939061403, -73.97032306529582], [40.77483004890382, -73.9685813896358], [40.779311852529645, -73.96673611365259], [40.78016915358603, -73.96757137030363], [40.783796925097704, -73.95926364697516], [40.78461365774274, -73.95911428146064], [40.78722805716097, -73.9577642083168], [40.78871567733586, -73.96185742691159], [40.78185919672251, -73.96935788914561], [40.78168636187911, -73.97162879817188], [40.779703203588724, -73.97126292809844], [40.77729030512273, -73.97406097501516], [40.77254765667021, -73.97663639858365], [40.77200308442116, -73.97693739272654], [40.76785035431385, -73.97895106114447]] }, { "d": "2025-09-11", "n": "New York Running", "km": 9.01, "m": 54.3, "hr": 157.0, "pace": 6.03, "w": [[40.7431467063725, -73.97188914008439], [40.731132505461574, -73.973981263116], [40.72935285978019, -73.97797339595854], [40.72431785054505, -73.98494227789342], [40.72286266833544, -73.98887640796602], [40.720324041321874, -73.99383313022554], [40.719511080533266, -73.99455615319312], [40.71728057228029, -73.99552275426686], [40.71643626317382, -73.9962766226381], [40.71685418486595, -73.9978483133018], [40.716915372759104, -73.99767304770648], [40.71961048990488, -73.99447124451399], [40.720925107598305, -73.9938282687217], [40.72391493245959, -73.99233218282461], [40.723205488175154, -73.9884838834405], [40.72235371917486, -73.98616092279553], [40.72140312753618, -73.98396084085107], [40.72215070948005, -73.98619931191206], [40.72352056391537, -73.98878957144916]] }, { "d": "2025-09-06", "n": "New York Running", "km": 15.02, "m": 79.0, "hr": 171.0, "pace": 5.26, "w": [[40.743215437978506, -73.97173818200827], [40.74286490678787, -73.97213858552277], [40.73077283799648, -73.97427219897509], [40.728323897346854, -73.97570324130356], [40.7221912778914, -73.98011773824692], [40.71971744298935, -73.97900537587702], [40.71643056347966, -73.98071059025824], [40.71384063921869, -73.9798634313047], [40.71193124167621, -73.97921416908503], [40.71103806607425, -73.98087772540748], [40.710554430261254, -73.98668185807765], [40.709731830284, -73.99310088716447], [40.70796727202833, -73.99995979852974], [40.70598319172859, -74.00315003469586], [40.701479176059365, -74.0129413548857], [40.702337650582194, -74.01433006860316], [40.70356383919716, -74.01567192748189], [40.70461593568325, -74.01465084403753], [40.707412557676435, -74.01832203380764], [40.71557058021426, -74.01722844690084], [40.727929109707475, -74.01134552434087], [40.73198041878641, -74.01097118854523], [40.73333216831088, -74.0108032990247], [40.74420232325792, -74.00884620845318], [40.7491163816303, -74.0096602588892], [40.75414267368615, -74.00735297240317], [40.75671700760722, -74.00444420054555], [40.75568092055619, -74.00201705284417], [40.75450628064573, -73.9992537908256], [40.753575805574656, -73.99648457765579]] }, { "d": "2025-09-01", "n": "New York Running", "km": 9.03, "m": 47.9, "hr": 167.0, "pace": 5.3, "w": [[40.767335621640086, -73.9765495620668], [40.769324731081724, -73.97484619170427], [40.77509776689112, -73.96827511489391], [40.798684023320675, -73.95847599953413], [40.77133026905358, -73.9775195159018]] }, { "d": "2025-08-19", "n": "New York Running", "km": 4.14, "m": 20.1, "hr": 164.0, "pace": 4.86, "w": [[40.743294479325414, -73.97176366299391], [40.74343244545162, -73.97167230024934]] }, { "d": "2025-08-14", "n": "New York - Base", "km": 8.45, "m": 44.9, "hr": 170.0, "pace": 5.31, "w": [[40.728906355798244, -73.9714671112597], [40.73066077195108, -73.97436272352934], [40.73163558728993, -73.98294956423342], [40.73455575853586, -73.98999740369618], [40.73613499291241, -73.99363548494875], [40.73775420896709, -73.99733156897128], [40.73987357318401, -73.99873000569642], [40.7428895495832, -73.9964061230421], [40.742985690012574, -73.99632448330522], [40.74413384310901, -73.99547799490392], [40.74606184847653, -73.99409305304289], [40.74914169497788, -73.99192088283598], [40.75033142231405, -73.99090139195323], [40.749686351045966, -73.98773420602083], [40.74700824916363, -73.98140218108892], [40.743721621111035, -73.97354817017913], [40.74324360117316, -73.9722961653024], [40.74323186650872, -73.97201897576451], [40.74743346311152, -73.96832062862813]] }, { "d": "2025-08-06", "n": "New York Running", "km": 6.1, "m": 33.6, "hr": 161.0, "pace": 5.51, "w": [[40.74301762506366, -73.97207479923964], [40.741694709286094, -73.97223615087569], [40.731171732768416, -73.97394304163754], [40.73001444339752, -73.97886916995049], [40.73244284838438, -73.98492308333516], [40.73702129535377, -73.9846982806921], [40.74288250878453, -73.98030339740217], [40.744870360940695, -73.9757977053523], [40.744539024308324, -73.9750312641263], [40.743882386013865, -73.97337231785059], [40.74373411014676, -73.9711097907275]] }, { "d": "2025-08-02", "n": "New York Running", "km": 10.01, "m": 55.2, "hr": 174.0, "pace": 5.51, "w": [[40.743248546496034, -73.97182183340192], [40.73143810965121, -73.98253935389221], [40.73245022445917, -73.9849261008203], [40.73447839356959, -73.99005507119], [40.73095061816275, -73.99965092539787], [40.7292521931231, -74.00129520334303], [40.72704481892288, -74.00351489894092], [40.732463551685214, -74.00328707881272], [40.733346082270145, -74.0028099808842], [40.73662986047566, -74.00091198273003], [40.73927007615566, -73.99901884607971], [40.741457249969244, -73.98960848338902], [40.740090664476156, -73.98641447536647], [40.743947345763445, -73.97797021083534], [40.743932174518704, -73.97347399033606], [40.744384629651904, -73.97275473922491]] }, { "d": "2025-07-26", "n": "New York - Base", "km": 8.19, "m": 43.2, "hr": 157.0, "pace": 5.27, "w": [[40.74291452765465, -73.97211972624063], [40.73108313605189, -73.97401755675673], [40.73084601201117, -73.98080916143954], [40.731280110776424, -73.9824962709099], [40.729977395385504, -73.98349958471954], [40.72340472601354, -73.98892753757536], [40.72491338476539, -73.99228901602328], [40.72713727131486, -73.99172675795853], [40.730873588472605, -73.99059176445007], [40.73275960050523, -73.99010678753257], [40.73460110463202, -73.98998164571822], [40.738405315205455, -73.98782959207892], [40.741510977968574, -73.98582849651575], [40.74286071583629, -73.9845449756831], [40.746464347466826, -73.98169781081378], [40.74843141250312, -73.98041219450533], [40.75032714754343, -73.978923400864], [40.74902283959091, -73.97588211111724], [40.74758945032954, -73.97670580074191], [40.74693750590086, -73.97711961530149], [40.744600128382444, -73.97512530907989], [40.74383435770869, -73.97336410358548], [40.743475779891014, -73.97258860990405]] }, { "d": "2025-07-22", "n": "New York - Base", "km": 8.37, "m": 44.8, "hr": 166.0, "pace": 5.35, "w": [[40.72864819318056, -73.98406192660332]] }, { "d": "2025-07-17", "n": "New York - Base", "km": 11.68, "m": 62.3, "hr": 173.0, "pace": 5.33, "w": [[40.74253533035517, -73.97216096520424], [40.720877749845386, -73.98421020247042], [40.71876768954098, -73.98527227342129], [40.71770436130464, -73.98653693497181], [40.71818414144218, -73.98759003728628], [40.71905083023012, -73.99040727876127], [40.719825737178326, -73.99304875172675], [40.720857633277774, -73.99586599320173], [40.72077783755958, -74.00076144374907], [40.72238842025399, -74.00385109707713], [40.7234136108309, -74.00476656854153], [40.72366557084024, -74.0046745352447], [40.72420159354806, -74.00423850864172], [40.72764194570482, -74.00135764852166], [40.7307805493474, -73.99891884997487], [40.73301248252392, -73.99586976505816], [40.7340444624424, -73.9949557185173], [40.73528666049242, -73.9940235670656], [40.735846823081374, -73.99324237369001], [40.7350096385926, -73.99062554351985], [40.737841464579105, -73.98827752098441], [40.73967710137367, -73.98697279393673], [40.742713613435626, -73.98460398428142], [40.7446560356766, -73.98335055448115], [40.74589043855667, -73.98254731670022], [40.74688193388283, -73.98079684004188], [40.7463120482862, -73.97978564724326], [40.74471462517977, -73.97596626542509], [40.74367635883391, -73.9736500941217], [40.743278469890356, -73.97227931767702], [40.74316564947367, -73.9719919860363], [40.74398372322321, -73.97313904948533], [40.74447096325457, -73.97521633654833], [40.74382153339684, -73.9733995590359], [40.74348676018417, -73.97267737425864]] }, { "d": "2025-07-12", "n": "New York - Recovery", "km": 7.08, "m": 38.9, "hr": 175.0, "pace": 5.49, "w": [[40.745823634788394, -73.97792352363467], [40.74315785430372, -73.97989109158516], [40.7379210088402, -73.98815623484552], [40.73756519705057, -73.98826913908124], [40.73176232166588, -73.99012506008148], [40.73040638118982, -73.99052848108113], [40.7297236751765, -73.99068413302302], [40.72638625279069, -73.99197159335017], [40.725669767707586, -73.99224610067904], [40.724852783605456, -73.99217627942562], [40.73265968821943, -73.98752700537443], [40.73142419569194, -73.98241731338203], [40.73024787940085, -73.97469003684819], [40.74317914433777, -73.97216976620257], [40.74371390976012, -73.97364682517946], [40.744789307937026, -73.97622987627983], [40.744949989020824, -73.97651569917798]] }, { "d": "2025-07-08", "n": "New York - Base", "km": 6.29, "m": 34.1, "hr": 165.0, "pace": 5.42, "w": [[40.743168415501714, -73.97183449007571], [40.73114222846925, -73.97388420067728], [40.73089714162052, -73.97400774993002], [40.73033345863223, -73.98032217286527], [40.725533813238144, -73.98404700681567], [40.72886084206402, -73.98458529263735], [40.73085690848529, -73.9831112511456], [40.7352461759001, -73.97994096390903], [40.73688207194209, -73.97838737815619], [40.73813826777041, -73.97751163691282], [40.74447389692068, -73.97101683542132]] }, { "d": "2025-07-03", "n": "New York Running", "km": 6.61, "m": 42.1, "hr": 146.0, "pace": 6.37, "w": [[40.74354752898216, -73.9737896528095], [40.74714286252856, -73.9814364630729], [40.74710506014526, -73.98169102147222], [40.748590836301446, -73.98462653160095], [40.75091999955475, -73.99019521661103], [40.75211249291897, -73.99347295984626], [40.7545196916908, -73.99931472726166], [40.755732050165534, -74.00209701620042], [40.75689763762057, -74.00492674671113], [40.75669362209737, -74.00561448186636], [40.756854051724076, -74.00487226434052], [40.755701288580894, -74.00207203812897], [40.754640474915504, -73.99916318245232], [40.753343123942614, -73.99639832787216], [40.75087289325893, -73.99063576944172], [40.74935392476618, -73.98699726909399], [40.74834633618593, -73.9846290461719], [40.74719759635627, -73.98136680945754], [40.74483331292868, -73.9763434510678], [40.74379865080118, -73.97324248217046], [40.743525652214885, -73.97252205759287]] }, { "d": "2025-07-02", "n": "New York Running", "km": 8.33, "m": 44.6, "hr": 161.0, "pace": 5.35, "w": [[40.74322482571006, -73.97187505848706], [40.739378621801734, -73.97267946973443], [40.731806410476565, -73.97376224398613], [40.73079211637378, -73.97428535856307], [40.72636093944311, -73.98044161498547], [40.72356197051704, -73.98527822457254], [40.7224917691201, -73.986542718485], [40.723083950579166, -73.98856409825385], [40.723926331847906, -73.99088655598462], [40.72428063489497, -73.99093894287944], [40.724665615707636, -73.99181426502764], [40.727874459698796, -73.99328143335879], [40.73085347190499, -73.99866378866136], [40.728952372446656, -73.99519166909158], [40.728596560657024, -73.99417016655207], [40.73046874254942, -73.99043770506978], [40.73253387585282, -73.98756966926157], [40.73546343483031, -73.98551937192678], [40.73751817457378, -73.98400635458529], [40.73816793970764, -73.98354400880635], [40.73994230479002, -73.98264287039638], [40.74405304156244, -73.97929388098419], [40.74537914246321, -73.97730275988579], [40.743483658879995, -73.9726860076189]] }, { "d": "2025-06-28", "n": "New York Running", "km": 6.03, "m": 42.9, "hr": 149.0, "pace": 7.11, "w": [[40.74339690618217, -73.97160675376654], [40.728561356663704, -73.97572268731892], [40.72281212545931, -73.98576554842293], [40.72234910912812, -73.98621238768101], [40.723162069916725, -73.98837005719543], [40.72683158330619, -73.98571978323162], [40.726973405107856, -73.98559506051242], [40.72741060517728, -73.98501494899392], [40.72772962041199, -73.98248797282577], [40.741393296048045, -73.97513134405017], [40.74319473467767, -73.97246413864195]] }, { "d": "2025-06-23", "n": "New York Running", "km": 4.09, "m": 20.4, "hr": 152.0, "pace": 4.99, "w": [[40.743210073560476, -73.97191126830876], [40.74322985485196, -73.97247277200222], [40.743249552324414, -73.97263186052442]] }, { "d": "2025-06-21", "n": "New York - Recovery", "km": 8.01, "m": 47.8, "hr": 148.0, "pace": 5.97, "w": [[40.74321426451206, -73.97191738709807], [40.728087862953544, -73.97156878374517], [40.72949384339154, -73.97163483314216], [40.73085422627628, -73.97383022122085], [40.73034360073507, -73.98030180484056], [40.72901071049273, -73.98130436427891], [40.72661985643208, -73.9831080660224], [40.72720457799733, -73.9842582307756], [40.727094607427716, -73.98551744408906], [40.72689754888415, -73.98568499833345], [40.723900934681296, -73.98786052130163], [40.723146479576826, -73.98876752704382], [40.724517088383436, -73.99229421280324], [40.72491958737373, -73.99213713593781], [40.726336129009724, -73.99179465137422], [40.72992945089936, -73.99080298841], [40.73076345026493, -73.98887967690825], [40.73262414894998, -73.98755542002618], [40.73696128092706, -73.98438806645572], [40.73886145837605, -73.98319817148149], [40.7407168764621, -73.9817832224071], [40.74508745223284, -73.97847932763398], [40.74491444975138, -73.97583207115531], [40.74382631108165, -73.97330802865326], [40.74321694672108, -73.97235224023461]] }, { "d": "2025-06-12", "n": "New York - Base", "km": 8.72, "m": 49.1, "hr": 163.0, "pace": 5.63, "w": [[40.74318157508969, -73.97189534269273], [40.72684155777097, -73.97662742994726], [40.72104061022401, -73.98123973980546], [40.72254750877619, -73.98600535467267], [40.72238179855049, -73.98624390363693], [40.7239387370646, -73.98803595453501], [40.726116774603724, -73.98340847343206], [40.7274579629302, -73.98239359259605], [40.73038022965193, -73.98045795969665], [40.7313696295023, -73.98242142051458], [40.73264912702143, -73.98137074895203], [40.73503453284502, -73.97972923703492], [40.73834119364619, -73.97769176401198], [40.743306716904044, -73.97229448892176], [40.74389026500285, -73.97140433080494], [40.74333186261356, -73.97194898687303], [40.74365993030369, -73.97292606532574]] }, { "d": "2025-06-07", "n": "New York Running", "km": 9.64, "m": 57.1, "hr": 167.0, "pace": 5.92, "w": [[40.74882661923766, -74.00871813297272]] }, { "d": "2025-05-31", "n": "New York - Base", "km": 10.02, "m": 54.0, "hr": 164.0, "pace": 5.39, "w": [[40.74391566216946, -73.9746601972729], [40.74490254744887, -73.97594086825848], [40.74588306248188, -73.9782211650163], [40.74783084914088, -73.98311896249652], [40.74994551949203, -73.98788482882082], [40.751009434461594, -73.99067767895758], [40.75224802829325, -73.99341495707631], [40.7534992787987, -73.99633697234094], [40.75483912602067, -73.99924566037953], [40.7556870393455, -74.00204739533365], [40.75691498816013, -74.0049041993916], [40.750961573794484, -74.01042217388749], [40.744485380128026, -74.00884059257805], [40.720402328297496, -74.0161238797009], [40.70808872580528, -74.01876761578023]] }, { "d": "2025-05-29", "n": "New York - Base", "km": 5.45, "m": 30.1, "hr": 157.0, "pace": 5.52, "w": [[40.74306548573077, -73.97204152308404], [40.73713998310268, -73.97265088744462], [40.73122847825289, -73.97343266755342], [40.731858713552356, -73.97364104166627], [40.742580592632294, -73.97236615419388], [40.74259450659156, -73.97232801653445], [40.743761183694005, -73.97326813079417]] }, { "d": "2025-05-25", "n": "New York - Base", "km": 14.32, "m": 76.8, "hr": 156.0, "pace": 5.36, "w": [[40.74308233335614, -73.97205283865333], [40.74047053232789, -73.97252415306866], [40.71907966397703, -73.97537358105183], [40.715373773127794, -73.97666917182505], [40.713275196030736, -73.97771213203669], [40.71190098300576, -73.98082391358912], [40.71102624759078, -73.98396444506943], [40.71077009662986, -73.98500472307205], [40.7098787650466, -73.99212699383497], [40.70945514366031, -73.9939960744232], [40.70925733074546, -73.99433302693069], [40.70930175483227, -73.99643621407449], [40.70860999636352, -73.9991398807615], [40.70731859654188, -74.00145655497909], [40.70664217695594, -74.00236339308321], [40.7059377618134, -74.00310552679002], [40.70148043334484, -74.0127629879862], [40.70199089124799, -74.01351023465395], [40.70531850680709, -74.01706282049417], [40.708831027150154, -74.01859025470912], [40.70901459082961, -74.01857290416956], [40.71385866031051, -74.01755131781101], [40.7199530582875, -74.01284504681826], [40.738941337913275, -74.01039560325444], [40.74341987259686, -74.0089749544859], [40.74854456819594, -74.00855309329927], [40.752086928114295, -74.00840179994702], [40.757025545462966, -74.00534760206938]] }, { "d": "2025-05-20", "n": "New York Running", "km": 5.62, "m": 28.5, "hr": 164.0, "pace": 5.07, "w": [[40.743037573993206, -73.97207672707736], [40.73460294865072, -73.97458291612566], [40.72225187905133, -73.97266656160355], [40.72565007023513, -73.97217211313546], [40.74343261308968, -73.9723234064877]] }, { "d": "2025-05-13", "n": "New York - Base", "km": 9.65, "m": 53.1, "hr": 154.0, "pace": 5.5, "w": [[40.74302458204329, -73.97213095799088], [40.719755413010716, -73.97327525541186], [40.743404952809215, -73.97163617424667], [40.74729801155627, -73.96848583593965], [40.744103165343404, -73.97210505791008], [40.744555704295635, -73.97306730039418], [40.746359238401055, -73.97970023564994], [40.74444984085858, -73.98105131462216], [40.74277228675783, -73.98050766438246], [40.74401901103556, -73.97961909882724], [40.74463265016675, -73.97912615910172], [40.74467087164521, -73.97594044916332], [40.743922367691994, -73.97339830175042], [40.74385522864759, -73.97310485132039]] }, { "d": "2025-04-30", "n": "New York Running", "km": 4.01, "m": 24.8, "hr": 147.0, "pace": 6.18, "w": [[40.74352791532874, -73.97149217315018], [40.72843663394451, -73.9715157262981]] }, { "d": "2025-04-24", "n": "New York - Base", "km": 7.76, "m": 43.0, "hr": 159.0, "pace": 5.54, "w": [[40.76641428284347, -73.97674980573356], [40.78998469747603, -73.95759061910212], [40.790856666862965, -73.96042261272669], [40.79119554720819, -73.96092527545989], [40.77846494503319, -73.96664349362254], [40.77231019735336, -73.96906938403845], [40.76625561341643, -73.97683689370751]] }, { "d": "2025-04-23", "n": "New York Running", "km": 4.01, "m": 25.0, "hr": 159.0, "pace": 6.23, "w": [[40.764838736504316, -73.97660178132355], [40.765654211863875, -73.97614111192524], [40.76768958941102, -73.97606969811022], [40.76916329562664, -73.97466740570962], [40.781639674678445, -73.96275420673192], [40.777935376390815, -73.96667710505426], [40.77332558110356, -73.96878121420741], [40.77087580226362, -73.97090082988143]] }, { "d": "2024-12-15", "n": "New York Running", "km": 21.01, "m": 121.2, "hr": 157.0, "pace": 5.77, "w": [[40.754359010607004, -73.99599549360573], [40.75379046611488, -73.99782668799162], [40.75448180548847, -73.9993679523468], [40.755098797380924, -74.00077250786126], [40.755693996325135, -74.0020689368248], [40.75687098316848, -74.00494971312582], [40.748632326722145, -74.00885408744216], [40.732254926115274, -74.01091637089849], [40.701336013153195, -74.01417248882353], [40.70694182999432, -74.0186914242804], [40.76379125006497, -73.99942897260189], [40.767837865278125, -73.99632481858134], [40.77122583054006, -73.99500542320311], [40.76916773803532, -73.9954187348485], [40.76428058557212, -73.99903234094381], [40.762573946267366, -74.00125597603619], [40.76099353842437, -73.99849531240761], [40.760651053860784, -73.99757967330515], [40.757845882326365, -73.9932534378022], [40.75716602616012, -73.99366817437112], [40.75518571771681, -73.99513735435903], [40.75489662587643, -73.99532049894333], [40.75472664088011, -73.99529334157705], [40.754207549616694, -73.99432053789496]] }, { "d": "2024-12-07", "n": "New York Running", "km": 6.04, "m": 35.0, "hr": 165.0, "pace": 5.79, "w": [[40.75344504788518, -73.99609456770122], [40.755863478407264, -74.00189233012497], [40.76244285330176, -74.00161078199744], [40.75701548717916, -74.00533150881529], [40.731253204867244, -74.01105643250048]] }, { "d": "2024-11-29", "n": "New York Running", "km": 3.01, "m": 17.5, "hr": 148.0, "pace": 5.81, "w": [[40.755373891443014, -74.00189383886755], [40.75451608747244, -73.99916594848037], [40.75567723251879, -74.00204219855368], [40.750932823866606, -74.01035713031888], [40.74242762289941, -74.00988103821874]] }, { "d": "2024-11-23", "n": "New York Running", "km": 16.16, "m": 88.5, "hr": 159.0, "pace": 5.48, "w": [[40.75341084972024, -73.9963307697326], [40.75385542586446, -73.99769894778728], [40.73126032948494, -74.01101510971785], [40.711153987795115, -74.01493976823986], [40.713964104652405, -74.01429947465658], [40.75694063678384, -74.00507099926472], [40.754645420238376, -73.99926711805165], [40.75461692176759, -73.99903661571443], [40.75415273196995, -73.99239856749773], [40.754988407716155, -73.99537992663682]] }];
+const BK_RUNS = [{"d":"2025-03-16","n":"Berkeley Running","km":7.36,"m":36.8,"hr":169.0,"pace":5.0,"w":[[37.87531793117523,-122.27257599122822],[37.87294543348253,-122.2767402883619],[37.87308968603611,-122.28206715546548],[37.87030060775578,-122.28177051991224],[37.863461477681994,-122.27210685610771],[37.864071344956756,-122.2673552390188],[37.86680820398033,-122.26746034808457],[37.86793473176658,-122.26597666740417],[37.869772212579846,-122.25241608917713],[37.875452460721135,-122.25682907737792],[37.87389451637864,-122.2687540948391],[37.875346429646015,-122.27235320024192]]},{"d":"2025-03-11","n":"Berkeley Running","km":5.01,"m":22.7,"hr":161.0,"pace":4.53,"w":[[37.87526177242398,-122.27255126461387],[37.87343183532357,-122.27330471388996],[37.873174510896206,-122.28230260312557],[37.86932663060725,-122.29162026196718],[37.87018099799752,-122.28495891205966],[37.870560195297,-122.28199129924178],[37.871578177437186,-122.27314470335841],[37.87145177833736,-122.27298201061785],[37.872153678908944,-122.26856650784612],[37.87566175684333,-122.2697020880878],[37.87565496750176,-122.2725114505738]]},{"d":"2025-03-02","n":"Berkeley Running","km":5.31,"m":28.6,"hr":156.0,"pace":5.39,"w":[[37.87537459284067,-122.27226527407765],[37.872283263131976,-122.26844245567918],[37.87493957206607,-122.26203004829586],[37.877320535480976,-122.26070864126086],[37.87544743157923,-122.25673788227141],[37.8712391294539,-122.25256000645459],[37.86873176693916,-122.25237686187029],[37.867901623249054,-122.26607993245125],[37.86781193688512,-122.26761817932129],[37.86946342326701,-122.26780115626752]]},{"d":"2025-02-21","n":"Berkeley Running","km":8.02,"m":43.2,"hr":171.0,"pace":5.39,"w":[[37.87527987733483,-122.27249284274876],[37.872682912275195,-122.2802357096225],[37.87315749563277,-122.28227804414928],[37.871690075844526,-122.29283848777413],[37.853615591302514,-122.28701046667993],[37.85338609479368,-122.27910079993308],[37.85467581823468,-122.27129934355617],[37.870147470384836,-122.27304085157812],[37.871604999527335,-122.27292710915208],[37.875615656375885,-122.27260390296578]]},{"d":"2025-02-09","n":"Berkeley Running","km":5.02,"m":28.9,"hr":160.0,"pace":5.76,"w":[[37.875302424654365,-122.27262133732438],[37.873129500076175,-122.28100625798106],[37.8731731697917,-122.28227980434895],[37.869117921218276,-122.29201530106366],[37.869136864319444,-122.2839571069926],[37.869490748271346,-122.28207126259804],[37.871401235461235,-122.2822836600244],[37.87298860028386,-122.2823129966855],[37.87359109148383,-122.27333832532167],[37.875467045232654,-122.27251639589667]]},{"d":"2025-02-07","n":"Berkeley Running","km":6.01,"m":31.2,"hr":170.0,"pace":5.19,"w":[[37.87528742104769,-122.27279408834875],[37.87343468517065,-122.27331343106925],[37.87307443097234,-122.28165132924914],[37.87300846539438,-122.28227854706347],[37.86913812160492,-122.29201152920723],[37.86556952632964,-122.2908644657582],[37.86215415224433,-122.28129115886986],[37.860754039138556,-122.2717220429331],[37.85933431237936,-122.26032273843884]]},{"d":"2025-01-29","n":"Berkeley Running","km":5.04,"m":27.7,"hr":166.0,"pace":5.5,"w":[[37.87527736276388,-122.27252494543791],[37.87350651808083,-122.28212432004511],[37.87313947454095,-122.2822889406234],[37.87026632577181,-122.2842078935355],[37.8753403108567,-122.27226083166897]]}];
 
-        const SF_RUNS = [{ "d": "2025-04-18", "n": "San Francisco - Base", "km": 9.56, "m": 53.1, "hr": 133.0, "pace": 5.56, "w": [[37.76659609749913, -122.39642757922411], [37.76664471253753, -122.39524430595338], [37.76683481410146, -122.39288664422929], [37.76697169058025, -122.3908315692097], [37.76703983545303, -122.38893449306488], [37.7751596365124, -122.38740974105895], [37.790530789643526, -122.38888763822615], [37.796382531523705, -122.39474440924823], [37.76724016293883, -122.38620199263096], [37.76704888790846, -122.3890598025173], [37.766919638961554, -122.39096291363239], [37.76719506829977, -122.39623722620308]] }, { "d": "2025-04-17", "n": "San Francisco - Base", "km": 5.42, "m": 30.1, "hr": 146.0, "pace": 5.55, "w": [[37.76672149077058, -122.39796188659966], [37.77302987873554, -122.40340299904346], [37.777211191132665, -122.40396819077432], [37.77869068086147, -122.4016154743731], [37.77775928378105, -122.40045776590705], [37.77648934163153, -122.39884399808943], [37.77188390493393, -122.40179266780615], [37.76695551350713, -122.40364423021674], [37.76599092409015, -122.40355253219604], [37.7664387691766, -122.3950672801584], [37.76674537919462, -122.39638617262244]] }, { "d": "2025-04-15", "n": "San Francisco - Threshold", "km": 10.5, "m": 53.6, "hr": 147.0, "pace": 5.1, "w": [[37.766531305387616, -122.39699025638402], [37.76663457043469, -122.39512704312801], [37.76688812300563, -122.39295730367303], [37.76698149740696, -122.39070584066212], [37.76701242662966, -122.38906726241112], [37.76702583767474, -122.38891177810729], [37.7672487962991, -122.38611867651343], [37.778919422999024, -122.3875555023551], [37.79842738062143, -122.39662187173963], [37.779831206426024, -122.38768734969199], [37.773893382400274, -122.38963245414197], [37.76704830117524, -122.38915904425085], [37.766949897632, -122.39086735993624], [37.76679868809879, -122.39282914437354], [37.76603844948113, -122.39584897644818], [37.76470555923879, -122.40269967354834]] }, { "d": "2025-04-11", "n": "San Francisco - Base", "km": 6.17, "m": 33.3, "hr": 133.0, "pace": 5.4, "w": [[37.7666789945215, -122.39636387676], [37.76668435893953, -122.39523651078343], [37.766836658120155, -122.39290927536786], [37.7669794857502, -122.39084229804575], [37.76702684350312, -122.38916507922113], [37.76725499890745, -122.38616779446602], [37.781382696703076, -122.38793402910233], [37.767232870683074, -122.38662888295949], [37.76705835945904, -122.38905158825219], [37.766980826854706, -122.39077432081103], [37.76683850213885, -122.3928639292717], [37.7666996140033, -122.39635499194264]] }, { "d": "2025-04-07", "n": "San Francisco Running", "km": 11.19, "m": 60.1, "hr": 144.0, "pace": 5.37, "w": [[37.766573801636696, -122.39661474712193], [37.7666805870831, -122.39530239254236], [37.766791312024, -122.39291698671877], [37.76694444939494, -122.39077876321971], [37.7670918032527, -122.38907363265753], [37.76720269583166, -122.38615463487804], [37.77769776061177, -122.39111672155559], [37.78852416202426, -122.38771383650601], [37.79904479160905, -122.39711791276932], [37.80349466018379, -122.40119009278715], [37.77761746197939, -122.38927722908556], [37.77083189226687, -122.38611968234181], [37.76922985911369, -122.38600887358189], [37.76702935807407, -122.38909299485385], [37.76696288958192, -122.390858810395], [37.76680271141231, -122.39283584989607], [37.7666996140033, -122.39471691660583]] }, { "d": "2025-04-01", "n": "San Francisco - Base", "km": 7.51, "m": 41.0, "hr": 152.0, "pace": 5.46, "w": [[37.76656181551516, -122.396918842569], [37.76685434393585, -122.39286887459457], [37.76700463145971, -122.39080927334726], [37.767050145193934, -122.3891716171056], [37.78961137868464, -122.38823083229363], [37.76707545854151, -122.38910146057606], [37.766765328124166, -122.39626321010292]] }, { "d": "2025-03-27", "n": "San Francisco - Base", "km": 8.99, "m": 49.4, "hr": 149.0, "pace": 5.5, "w": [[37.76655385270715, -122.3975106049329], [37.76666642166674, -122.39527121186256], [37.76684361509979, -122.39292126148939], [37.76698409579694, -122.39082855172455], [37.767033129930496, -122.38929214887321], [37.76724108494818, -122.38614851608872], [37.79320428147912, -122.39152969792485], [37.79549555853009, -122.39389138296247], [37.79320880770683, -122.39667987450957], [37.79161859303713, -122.3982135951519], [37.78863321058452, -122.40204395726323], [37.7839061524719, -122.40801824256778], [37.780366223305464, -122.41225973702967], [37.779286969453096, -122.41086415015161], [37.773113111034036, -122.40315590053797], [37.77192053385079, -122.40164414048195], [37.769402442499995, -122.3985196184367], [37.76924276724458, -122.39851710386574], [37.767212335020304, -122.39613731391728]] }, { "d": "2025-03-24", "n": "San Francisco - Threshold", "km": 8.24, "m": 43.0, "hr": 146.0, "pace": 5.22, "w": [[37.76658268645406, -122.39697047509253], [37.766884015873075, -122.39291807636619], [37.76699574664235, -122.39079795777798], [37.76706799864769, -122.38917983137071], [37.76727670803666, -122.38615832291543], [37.7806390542537, -122.38768726587296], [37.78701634146273, -122.38758073188365], [37.79119220562279, -122.389154182747], [37.794611267745495, -122.3930262029171], [37.78974582441151, -122.38834138959646], [37.781759379431605, -122.38856317475438], [37.78057208284736, -122.39044608548284], [37.77875396423042, -122.39276837557554], [37.77175582945347, -122.40157700143754], [37.765372758731246, -122.40352487191558]] }, { "d": "2025-03-20", "n": "San Francisco - Base", "km": 7.06, "m": 39.0, "hr": 147.0, "pace": 5.52, "w": [[37.766766333952546, -122.39644744433463], [37.76666357181966, -122.39525453187525], [37.7668515779078, -122.39287859760225], [37.76700211688876, -122.39082167856395], [37.76711133308709, -122.38891085609794], [37.767266565933824, -122.38613879308105], [37.77601224370301, -122.38797526806593], [37.77665890753269, -122.3899956420064], [37.78445181436837, -122.3877899441868], [37.7644616458565, -122.38785004243255], [37.76704754680395, -122.38908126018941], [37.766821067780256, -122.39650611765683]] }];
+const MONTHLY = [{"m":"2024-11","km":19.2,"n":2},{"m":"2024-12","km":27.1,"n":2},{"m":"2025-01","km":9.1,"n":2},{"m":"2025-02","km":19.0,"n":3},{"m":"2025-03","km":42.0,"n":6},{"m":"2025-04","km":66.1,"n":9},{"m":"2025-05","km":45.1,"n":5},{"m":"2025-06","km":36.5,"n":5},{"m":"2025-07","km":56.5,"n":7},{"m":"2025-08","km":28.7,"n":4},{"m":"2025-09","km":71.3,"n":7},{"m":"2025-10","km":21.1,"n":3},{"m":"2025-11","km":8.4,"n":2},{"m":"2026-01","km":10.6,"n":2},{"m":"2026-02","km":33.6,"n":4},{"m":"2026-03","km":23.3,"n":4},{"m":"2026-04","km":7.8,"n":1}];
 
-        const BK_RUNS = [{ "d": "2025-03-16", "n": "Berkeley Running", "km": 7.36, "m": 36.8, "hr": 169.0, "pace": 5.0, "w": [[37.87531793117523, -122.27257599122822], [37.87294543348253, -122.2767402883619], [37.87308968603611, -122.28206715546548], [37.87030060775578, -122.28177051991224], [37.863461477681994, -122.27210685610771], [37.864071344956756, -122.2673552390188], [37.86680820398033, -122.26746034808457], [37.86793473176658, -122.26597666740417], [37.869772212579846, -122.25241608917713], [37.875452460721135, -122.25682907737792], [37.87389451637864, -122.2687540948391], [37.875346429646015, -122.27235320024192]] }, { "d": "2025-03-11", "n": "Berkeley Running", "km": 5.01, "m": 22.7, "hr": 161.0, "pace": 4.53, "w": [[37.87526177242398, -122.27255126461387], [37.87343183532357, -122.27330471388996], [37.873174510896206, -122.28230260312557], [37.86932663060725, -122.29162026196718], [37.87018099799752, -122.28495891205966], [37.870560195297, -122.28199129924178], [37.871578177437186, -122.27314470335841], [37.87145177833736, -122.27298201061785], [37.872153678908944, -122.26856650784612], [37.87566175684333, -122.2697020880878], [37.87565496750176, -122.2725114505738]] }, { "d": "2025-03-02", "n": "Berkeley Running", "km": 5.31, "m": 28.6, "hr": 156.0, "pace": 5.39, "w": [[37.87537459284067, -122.27226527407765], [37.872283263131976, -122.26844245567918], [37.87493957206607, -122.26203004829586], [37.877320535480976, -122.26070864126086], [37.87544743157923, -122.25673788227141], [37.8712391294539, -122.25256000645459], [37.86873176693916, -122.25237686187029], [37.867901623249054, -122.26607993245125], [37.86781193688512, -122.26761817932129], [37.86946342326701, -122.26780115626752]] }, { "d": "2025-02-21", "n": "Berkeley Running", "km": 8.02, "m": 43.2, "hr": 171.0, "pace": 5.39, "w": [[37.87527987733483, -122.27249284274876], [37.872682912275195, -122.2802357096225], [37.87315749563277, -122.28227804414928], [37.871690075844526, -122.29283848777413], [37.853615591302514, -122.28701046667993], [37.85338609479368, -122.27910079993308], [37.85467581823468, -122.27129934355617], [37.870147470384836, -122.27304085157812], [37.871604999527335, -122.27292710915208], [37.875615656375885, -122.27260390296578]] }, { "d": "2025-02-09", "n": "Berkeley Running", "km": 5.02, "m": 28.9, "hr": 160.0, "pace": 5.76, "w": [[37.875302424654365, -122.27262133732438], [37.873129500076175, -122.28100625798106], [37.8731731697917, -122.28227980434895], [37.869117921218276, -122.29201530106366], [37.869136864319444, -122.2839571069926], [37.869490748271346, -122.28207126259804], [37.871401235461235, -122.2822836600244], [37.87298860028386, -122.2823129966855], [37.87359109148383, -122.27333832532167], [37.875467045232654, -122.27251639589667]] }, { "d": "2025-02-07", "n": "Berkeley Running", "km": 6.01, "m": 31.2, "hr": 170.0, "pace": 5.19, "w": [[37.87528742104769, -122.27279408834875], [37.87343468517065, -122.27331343106925], [37.87307443097234, -122.28165132924914], [37.87300846539438, -122.28227854706347], [37.86913812160492, -122.29201152920723], [37.86556952632964, -122.2908644657582], [37.86215415224433, -122.28129115886986], [37.860754039138556, -122.2717220429331], [37.85933431237936, -122.26032273843884]] }, { "d": "2025-01-29", "n": "Berkeley Running", "km": 5.04, "m": 27.7, "hr": 166.0, "pace": 5.5, "w": [[37.87527736276388, -122.27252494543791], [37.87350651808083, -122.28212432004511], [37.87313947454095, -122.2822889406234], [37.87026632577181, -122.2842078935355], [37.8753403108567, -122.27226083166897]] }];
+const ALL_RUNS = [
+  ...NY_RUNS.map(r=>({...r,city:'New York'})),
+  ...SF_RUNS.map(r=>({...r,city:'San Francisco'})),
+  ...BK_RUNS.map(r=>({...r,city:'Berkeley'}))
+].sort((a,b)=>a.d.localeCompare(b.d));
 
-        const MONTHLY = [{ "m": "2024-11", "km": 19.2, "n": 2 }, { "m": "2024-12", "km": 27.1, "n": 2 }, { "m": "2025-01", "km": 9.1, "n": 2 }, { "m": "2025-02", "km": 19.0, "n": 3 }, { "m": "2025-03", "km": 42.0, "n": 6 }, { "m": "2025-04", "km": 66.1, "n": 9 }, { "m": "2025-05", "km": 45.1, "n": 5 }, { "m": "2025-06", "km": 36.5, "n": 5 }, { "m": "2025-07", "km": 56.5, "n": 7 }, { "m": "2025-08", "km": 28.7, "n": 4 }, { "m": "2025-09", "km": 71.3, "n": 7 }, { "m": "2025-10", "km": 21.1, "n": 3 }, { "m": "2025-11", "km": 8.4, "n": 2 }, { "m": "2026-01", "km": 10.6, "n": 2 }, { "m": "2026-02", "km": 33.6, "n": 4 }, { "m": "2026-03", "km": 23.3, "n": 4 }, { "m": "2026-04", "km": 7.8, "n": 1 }];
+// ── MAPS ──────────────────────────────────────────────────────────────────
+const TILE = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+const TILE_OPTS = {attribution:'&copy; OpenStreetMap &copy; CARTO',maxZoom:19};
 
-        const ALL_RUNS = [
-            ...NY_RUNS.map(r => ({ ...r, city: 'New York' })),
-            ...SF_RUNS.map(r => ({ ...r, city: 'San Francisco' })),
-            ...BK_RUNS.map(r => ({ ...r, city: 'Berkeley' }))
-        ].sort((a, b) => a.d.localeCompare(b.d));
+function buildMap(elId, runs, center, zoom, color) {
+  const map = L.map(elId).setView(center, zoom);
+  L.tileLayer(TILE, TILE_OPTS).addTo(map);
+  const routeGroup = L.layerGroup().addTo(map);
+  const heatPts = [];
+  const bounds = [];
+  runs.forEach(run => {
+    const pts = run.w.filter(p=>p[0]!==0&&p[1]!==0);
+    if (pts.length < 2) return;
+    const pace = run.pace.toFixed(1);
+    const poly = L.polyline(pts, {color, weight:2.5, opacity:0.85});
+    poly.bindPopup(`<b>${run.n}</b><br><span class="popup-meta">${run.d}</span><div class="popup-stats">${run.km} km &nbsp;·&nbsp; ${run.m} min &nbsp;·&nbsp; ${pace} min/km<br>HR: ${run.hr} bpm</div>`);
+    poly.addTo(routeGroup);
+    pts.forEach(p=>{heatPts.push([p[0],p[1],0.7]);bounds.push(p);});
+  });
+  const heatLayer = L.heatLayer(heatPts,{radius:12,blur:16,maxZoom:15,gradient:{0.2:color,0.6:'#FAC775',1:'#E24B4A'}}).addTo(map);
+  const fitBounds = bounds.length ? L.latLngBounds(bounds) : null;
+  return {map, routeGroup, heatLayer, fitBounds, showRoutes:true, showHeat:true};
+}
 
-        // ── MAPS ──────────────────────────────────────────────────────────────────
-        const TILE = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-        const TILE_OPTS = { attribution: '&copy; OpenStreetMap &copy; CARTO', maxZoom: 19 };
+const maps = {};
+let mapsInit = {ny:false, sf:false, bk:false};
 
-        function buildMap(elId, runs, center, zoom, color) {
-            const map = L.map(elId).setView(center, zoom);
-            L.tileLayer(TILE, TILE_OPTS).addTo(map);
-            const routeGroup = L.layerGroup().addTo(map);
-            const heatPts = [];
-            const bounds = [];
-            runs.forEach(run => {
-                const pts = run.w.filter(p => p[0] !== 0 && p[1] !== 0);
-                if (pts.length < 2) return;
-                const pace = run.pace.toFixed(1);
-                const poly = L.polyline(pts, { color, weight: 2.5, opacity: 0.85 });
-                poly.bindPopup(`<b>${run.n}</b><br><span class="popup-meta">${run.d}</span><div class="popup-stats">${run.km} km &nbsp;·&nbsp; ${run.m} min &nbsp;·&nbsp; ${pace} min/km<br>HR: ${run.hr} bpm</div>`);
-                poly.addTo(routeGroup);
-                pts.forEach(p => { heatPts.push([p[0], p[1], 0.7]); bounds.push(p); });
-            });
-            const heatLayer = L.heatLayer(heatPts, { radius: 12, blur: 16, maxZoom: 15, gradient: { 0.2: color, 0.6: '#FAC775', 1: '#E24B4A' } }).addTo(map);
-            const fitBounds = bounds.length ? L.latLngBounds(bounds) : null;
-            return { map, routeGroup, heatLayer, fitBounds, showRoutes: true, showHeat: true };
-        }
+function initMap(key) {
+  if (mapsInit[key]) return;
+  mapsInit[key] = true;
+  if (key==='ny') maps.ny = buildMap('map-ny', NY_RUNS, [40.735,-73.99], 13, '#378ADD');
+  if (key==='sf') maps.sf = buildMap('map-sf', SF_RUNS, [37.78,-122.395], 13, '#1D9E75');
+  if (key==='bk') maps.bk = buildMap('map-bk', BK_RUNS, [37.868,-122.27], 14, '#D85A30');
+  setTimeout(()=>{ if(maps[key]) maps[key].map.invalidateSize(); }, 100);
+}
 
-        const maps = {};
-        let mapsInit = { ny: false, sf: false, bk: false };
+initMap('ny');
 
-        function initMap(key) {
-            if (mapsInit[key]) return;
-            mapsInit[key] = true;
-            if (key === 'ny') maps.ny = buildMap('map-ny', NY_RUNS, [40.735, -73.99], 13, '#378ADD');
-            if (key === 'sf') maps.sf = buildMap('map-sf', SF_RUNS, [37.78, -122.395], 13, '#1D9E75');
-            if (key === 'bk') maps.bk = buildMap('map-bk', BK_RUNS, [37.868, -122.27], 14, '#D85A30');
-            setTimeout(() => { if (maps[key]) maps[key].map.invalidateSize(); }, 100);
-        }
+function switchCity(city) {
+  document.querySelectorAll('.city-tab').forEach(b=>b.classList.toggle('active', b.dataset.city===city));
+  document.querySelectorAll('.city-panel').forEach(p=>p.classList.toggle('active', p.id==='panel-'+city));
+  const key = city==='New York'?'ny':city==='San Francisco'?'sf':'bk';
+  initMap(key);
+  setTimeout(()=>{ if(maps[key]) maps[key].map.invalidateSize(); }, 50);
+}
 
-        initMap('ny');
+function toggleMap(key, layer) {
+  const m = maps[key]; if(!m) return;
+  if (layer==='routes') {
+    m.showRoutes=!m.showRoutes;
+    m.showRoutes ? m.map.addLayer(m.routeGroup) : m.map.removeLayer(m.routeGroup);
+    document.getElementById('btn-'+key+'-routes').classList.toggle('active', m.showRoutes);
+  } else {
+    m.showHeat=!m.showHeat;
+    m.showHeat ? m.map.addLayer(m.heatLayer) : m.map.removeLayer(m.heatLayer);
+    document.getElementById('btn-'+key+'-heat').classList.toggle('active', m.showHeat);
+  }
+}
 
-        function switchCity(city) {
-            document.querySelectorAll('.city-tab').forEach(b => b.classList.toggle('active', b.dataset.city === city));
-            document.querySelectorAll('.city-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + city));
-            const key = city === 'New York' ? 'ny' : city === 'San Francisco' ? 'sf' : 'bk';
-            initMap(key);
-            setTimeout(() => { if (maps[key]) maps[key].map.invalidateSize(); }, 50);
-        }
+function resetMap(key) {
+  const m = maps[key]; if(!m||!m.fitBounds) return;
+  m.map.fitBounds(m.fitBounds, {padding:[20,20]});
+}
 
-        function toggleMap(key, layer) {
-            const m = maps[key]; if (!m) return;
-            if (layer === 'routes') {
-                m.showRoutes = !m.showRoutes;
-                m.showRoutes ? m.map.addLayer(m.routeGroup) : m.map.removeLayer(m.routeGroup);
-                document.getElementById('btn-' + key + '-routes').classList.toggle('active', m.showRoutes);
-            } else {
-                m.showHeat = !m.showHeat;
-                m.showHeat ? m.map.addLayer(m.heatLayer) : m.map.removeLayer(m.heatLayer);
-                document.getElementById('btn-' + key + '-heat').classList.toggle('active', m.showHeat);
-            }
-        }
+// ── CHARTS ───────────────────────────────────────────────────────────────
+const CITY_COLORS = {'New York':'#378ADD','San Francisco':'#1D9E75','Berkeley':'#D85A30'};
+Chart.defaults.color = '#666';
+Chart.defaults.borderColor = '#222';
+Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
-        function resetMap(key) {
-            const m = maps[key]; if (!m || !m.fitBounds) return;
-            m.map.fitBounds(m.fitBounds, { padding: [20, 20] });
-        }
+// Monthly volume
+new Chart(document.getElementById('chart-monthly'), {
+  type: 'bar',
+  data: {
+    labels: MONTHLY.map(m=>m.m.slice(0,7)),
+    datasets: [{
+      data: MONTHLY.map(m=>m.km),
+      backgroundColor: MONTHLY.map(m=>m.km > 50 ? '#378ADD' : m.km > 30 ? '#5baef7' : '#1e3a5c'),
+      borderRadius: 4, borderSkipped: false,
+    }]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{
+      title: (i)=>i[0].label,
+      label: (i)=>`${i.raw} km  ·  ${MONTHLY[i.dataIndex].n} run${MONTHLY[i.dataIndex].n>1?'s':''}`
+    }}},
+    scales:{
+      x:{grid:{display:false}, ticks:{color:'#555', maxRotation:45}},
+      y:{grid:{color:'#1e1e1e'}, ticks:{color:'#555', callback:v=>v+' km'}}
+    }
+  }
+});
 
-        // ── CHARTS ───────────────────────────────────────────────────────────────
-        const CITY_COLORS = { 'New York': '#378ADD', 'San Francisco': '#1D9E75', 'Berkeley': '#D85A30' };
-        Chart.defaults.color = '#666';
-        Chart.defaults.borderColor = '#222';
-        Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+// Pace over time
+const paceData = ALL_RUNS.map(r=>({x:r.d, y:r.pace, city:r.city, km:r.km, hr:r.hr, n:r.n}));
+new Chart(document.getElementById('chart-pace'), {
+  type: 'line',
+  data: {
+    datasets: Object.keys(CITY_COLORS).map(city=>({
+      label: city,
+      data: paceData.filter(p=>p.city===city).map(p=>({x:p.x,y:p.y,km:p.km,hr:p.hr,n:p.n})),
+      borderColor: CITY_COLORS[city],
+      backgroundColor: CITY_COLORS[city]+'33',
+      pointRadius: 4, pointHoverRadius: 7,
+      tension: 0.3, fill: false,
+    }))
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{
+      legend:{position:'bottom', labels:{boxWidth:10, padding:12, color:'#888'}},
+      tooltip:{callbacks:{
+        title: i=>i[0].raw.x,
+        label: i=>`${i.dataset.label}: ${i.raw.y} min/km  ·  ${i.raw.km} km`
+      }}
+    },
+    scales:{
+      x:{type:'category', grid:{display:false}, ticks:{color:'#555', maxTicksLimit:8}},
+      y:{reverse:true, grid:{color:'#1e1e1e'}, ticks:{color:'#555', callback:v=>v+' min/km'}, min:4, max:7.5}
+    }
+  }
+});
 
-        // Monthly volume
-        new Chart(document.getElementById('chart-monthly'), {
-            type: 'bar',
-            data: {
-                labels: MONTHLY.map(m => m.m.slice(0, 7)),
-                datasets: [{
-                    data: MONTHLY.map(m => m.km),
-                    backgroundColor: MONTHLY.map(m => m.km > 50 ? '#378ADD' : m.km > 30 ? '#5baef7' : '#1e3a5c'),
-                    borderRadius: 4, borderSkipped: false,
-                }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }, tooltip: {
-                        callbacks: {
-                            title: (i) => i[0].label,
-                            label: (i) => `${i.raw} km  ·  ${MONTHLY[i.dataIndex].n} run${MONTHLY[i.dataIndex].n > 1 ? 's' : ''}`
-                        }
-                    }
-                },
-                scales: {
-                    x: { grid: { display: false }, ticks: { color: '#555', maxRotation: 45 } },
-                    y: { grid: { color: '#1e1e1e' }, ticks: { color: '#555', callback: v => v + ' km' } }
-                }
-            }
-        });
+// HR vs pace scatter
+new Chart(document.getElementById('chart-hrpace'), {
+  type: 'scatter',
+  data: {
+    datasets: Object.keys(CITY_COLORS).map(city=>({
+      label: city,
+      data: ALL_RUNS.filter(r=>r.city===city&&r.hr&&r.pace).map(r=>({x:r.hr,y:r.pace,km:r.km,d:r.d})),
+      backgroundColor: CITY_COLORS[city]+'aa',
+      pointRadius: 5, pointHoverRadius: 8,
+    }))
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{
+      legend:{position:'bottom', labels:{boxWidth:10, padding:12, color:'#888'}},
+      tooltip:{callbacks:{
+        label:i=>`HR ${i.raw.x} bpm  ·  ${i.raw.y} min/km  ·  ${i.raw.km} km`
+      }}
+    },
+    scales:{
+      x:{title:{display:true, text:'Heart rate (bpm)', color:'#555'}, grid:{color:'#1e1e1e'}, ticks:{color:'#555'}},
+      y:{title:{display:true, text:'Pace (min/km)', color:'#555'}, reverse:true, grid:{color:'#1e1e1e'}, ticks:{color:'#555'}}
+    }
+  }
+});
 
-        // Pace over time
-        const paceData = ALL_RUNS.map(r => ({ x: r.d, y: r.pace, city: r.city, km: r.km, hr: r.hr, n: r.n }));
-        new Chart(document.getElementById('chart-pace'), {
-            type: 'line',
-            data: {
-                datasets: Object.keys(CITY_COLORS).map(city => ({
-                    label: city,
-                    data: paceData.filter(p => p.city === city).map(p => ({ x: p.x, y: p.y, km: p.km, hr: p.hr, n: p.n })),
-                    borderColor: CITY_COLORS[city],
-                    backgroundColor: CITY_COLORS[city] + '33',
-                    pointRadius: 4, pointHoverRadius: 7,
-                    tension: 0.3, fill: false,
-                }))
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom', labels: { boxWidth: 10, padding: 12, color: '#888' } },
-                    tooltip: {
-                        callbacks: {
-                            title: i => i[0].raw.x,
-                            label: i => `${i.dataset.label}: ${i.raw.y} min/km  ·  ${i.raw.km} km`
-                        }
-                    }
-                },
-                scales: {
-                    x: { type: 'category', grid: { display: false }, ticks: { color: '#555', maxTicksLimit: 8 } },
-                    y: { reverse: true, grid: { color: '#1e1e1e' }, ticks: { color: '#555', callback: v => v + ' min/km' }, min: 4, max: 7.5 }
-                }
-            }
-        });
+// Distance histogram
+const buckets = [0,3,5,7,10,15,25];
+const labels = ['< 3 km','3–5 km','5–7 km','7–10 km','10–15 km','15+ km'];
+const counts = Array(labels.length).fill(0);
+ALL_RUNS.forEach(r=>{
+  const i = buckets.findIndex((b,idx)=>r.km>=b&&(idx===buckets.length-1||r.km<buckets[idx+1]));
+  if(i>=0) counts[i]++;
+});
+new Chart(document.getElementById('chart-dist'), {
+  type:'bar',
+  data:{
+    labels,
+    datasets:[{
+      data:counts,
+      backgroundColor:['#1e3a5c','#1e3a5c','#2a5a8c','#378ADD','#5baef7','#7eceff'],
+      borderRadius:4, borderSkipped:false
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:i=>`${i.raw} runs`}}},
+    scales:{
+      x:{grid:{display:false}, ticks:{color:'#555'}},
+      y:{grid:{color:'#1e1e1e'}, ticks:{color:'#555', stepSize:1}}
+    }
+  }
+});
 
-        // HR vs pace scatter
-        new Chart(document.getElementById('chart-hrpace'), {
-            type: 'scatter',
-            data: {
-                datasets: Object.keys(CITY_COLORS).map(city => ({
-                    label: city,
-                    data: ALL_RUNS.filter(r => r.city === city && r.hr && r.pace).map(r => ({ x: r.hr, y: r.pace, km: r.km, d: r.d })),
-                    backgroundColor: CITY_COLORS[city] + 'aa',
-                    pointRadius: 5, pointHoverRadius: 8,
-                }))
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom', labels: { boxWidth: 10, padding: 12, color: '#888' } },
-                    tooltip: {
-                        callbacks: {
-                            label: i => `HR ${i.raw.x} bpm  ·  ${i.raw.y} min/km  ·  ${i.raw.km} km`
-                        }
-                    }
-                },
-                scales: {
-                    x: { title: { display: true, text: 'Heart rate (bpm)', color: '#555' }, grid: { color: '#1e1e1e' }, ticks: { color: '#555' } },
-                    y: { title: { display: true, text: 'Pace (min/km)', color: '#555' }, reverse: true, grid: { color: '#1e1e1e' }, ticks: { color: '#555' } }
-                }
-            }
-        });
-
-        // Distance histogram
-        const buckets = [0, 3, 5, 7, 10, 15, 25];
-        const labels = ['< 3 km', '3–5 km', '5–7 km', '7–10 km', '10–15 km', '15+ km'];
-        const counts = Array(labels.length).fill(0);
-        ALL_RUNS.forEach(r => {
-            const i = buckets.findIndex((b, idx) => r.km >= b && (idx === buckets.length - 1 || r.km < buckets[idx + 1]));
-            if (i >= 0) counts[i]++;
-        });
-        new Chart(document.getElementById('chart-dist'), {
-            type: 'bar',
-            data: {
-                labels,
-                datasets: [{
-                    data: counts,
-                    backgroundColor: ['#1e3a5c', '#1e3a5c', '#2a5a8c', '#378ADD', '#5baef7', '#7eceff'],
-                    borderRadius: 4, borderSkipped: false
-                }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { display: false }, tooltip: { callbacks: { label: i => `${i.raw} runs` } } },
-                scales: {
-                    x: { grid: { display: false }, ticks: { color: '#555' } },
-                    y: { grid: { color: '#1e1e1e' }, ticks: { color: '#555', stepSize: 1 } }
-                }
-            }
-        });
-
-        // Pace by city (box-style using bar + error)
-        const cityPaceData = Object.keys(CITY_COLORS).map(city => {
-            const paces = ALL_RUNS.filter(r => r.city === city).map(r => r.pace).sort((a, b) => a - b);
-            const avg = paces.reduce((s, v) => s + v, 0) / paces.length;
-            const min = paces[0], max = paces[paces.length - 1];
-            const q1 = paces[Math.floor(paces.length * .25)], q3 = paces[Math.floor(paces.length * .75)];
-            return { city, avg: Math.round(avg * 100) / 100, min, max, q1, q3, n: paces.length };
-        });
-        new Chart(document.getElementById('chart-citypace'), {
-            type: 'bar',
-            data: {
-                labels: cityPaceData.map(d => d.city),
-                datasets: [
-                    { label: 'Avg pace', data: cityPaceData.map(d => d.avg), backgroundColor: cityPaceData.map(d => CITY_COLORS[d.city] + 'cc'), borderRadius: 6, borderSkipped: false },
-                    { label: 'Best run', data: cityPaceData.map(d => d.min), backgroundColor: 'transparent', borderColor: cityPaceData.map(d => CITY_COLORS[d.city]), borderWidth: 2, borderRadius: 4, borderSkipped: false, type: 'bar' },
-                ]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom', labels: { boxWidth: 10, padding: 12, color: '#888' } },
-                    tooltip: { callbacks: { label: i => `${i.dataset.label}: ${i.raw} min/km` } }
-                },
-                scales: {
-                    x: { grid: { display: false }, ticks: { color: '#666' } },
-                    y: { reverse: true, grid: { color: '#1e1e1e' }, ticks: { color: '#555', callback: v => v + ' min/km' }, min: 4, max: 7 }
-                }
-            }
-        });
-    </script>
+// Pace by city (box-style using bar + error)
+const cityPaceData = Object.keys(CITY_COLORS).map(city=>{
+  const paces = ALL_RUNS.filter(r=>r.city===city).map(r=>r.pace).sort((a,b)=>a-b);
+  const avg = paces.reduce((s,v)=>s+v,0)/paces.length;
+  const min = paces[0], max = paces[paces.length-1];
+  const q1 = paces[Math.floor(paces.length*.25)], q3 = paces[Math.floor(paces.length*.75)];
+  return {city, avg:Math.round(avg*100)/100, min, max, q1, q3, n:paces.length};
+});
+new Chart(document.getElementById('chart-citypace'), {
+  type:'bar',
+  data:{
+    labels: cityPaceData.map(d=>d.city),
+    datasets:[
+      {label:'Avg pace', data:cityPaceData.map(d=>d.avg), backgroundColor:cityPaceData.map(d=>CITY_COLORS[d.city]+'cc'), borderRadius:6, borderSkipped:false},
+      {label:'Best run', data:cityPaceData.map(d=>d.min), backgroundColor:'transparent', borderColor:cityPaceData.map(d=>CITY_COLORS[d.city]), borderWidth:2, borderRadius:4, borderSkipped:false, type:'bar'},
+    ]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{
+      legend:{position:'bottom', labels:{boxWidth:10, padding:12, color:'#888'}},
+      tooltip:{callbacks:{label:i=>`${i.dataset.label}: ${i.raw} min/km`}}
+    },
+    scales:{
+      x:{grid:{display:false}, ticks:{color:'#666'}},
+      y:{reverse:true, grid:{color:'#1e1e1e'}, ticks:{color:'#555', callback:v=>v+' min/km'}, min:4, max:7}
+    }
+  }
+});
+</script>
 </body>
-
 </html>
